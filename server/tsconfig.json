@@ -2,7 +2,8 @@
     "compilerOptions": {
         "module": "commonjs",
         "removeComments": true,
-        "outDir": "dist"
+        "outDir": "dist",
+        "resolveJsonModule": true
     },
     "include": [
         "src/**/*"
