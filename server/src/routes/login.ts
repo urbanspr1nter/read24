@@ -1,10 +1,12 @@
 import { IRouter } from "express";
 import * as bcrypt from 'bcrypt';
-import * as db from '../mockDb.json';
+import { maybeLoadDb } from '../db/memory';
 
-const classrooms = db.classrooms;
-const students = db.students;
-const users = db.users;
+const db = maybeLoadDb();
+
+const classrooms = db.data.classrooms;
+const students = db.data.students;
+const users = db.data.users;
 
 function hashPassword(plainTextPassword: string) {
     const saltRounds = 7;

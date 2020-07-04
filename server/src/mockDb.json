@@ -30,6 +30,7 @@
             "id": 1,
             "title": "Where the Red Fern Grows",
             "author": "Wilson Rawls",
+            "fiction": true,
             "year": "1974",
             "publisher": "Bantam Books",
             "genre": 0,
@@ -41,12 +42,106 @@
             "id": 2,
             "title": "Esperanza Rising",
             "author": "Pam Munoz Ryan",
-            "year": 2000,
+            "fiction": true,
+            "year": "2000",
             "publisher": "Scholastic, Inc.",
             "genre": 0,
             "isbn": "0-439-12041-1",
             "lexile": 750,
             "wordCount": 41905
         }
-    ]
+    ],
+    "quizTokens": [],
+    "questions": [
+        {
+            "id": 1,
+            "bookId": 1,
+            "content": "WTRFG - First question"
+        },
+        {
+            "id": 2,
+            "bookId": 1,
+            "content": "WTRFG - Second question"
+        },
+        {
+            "id": 3,
+            "bookId": 1,
+            "content": "WTRFG - Third question"
+        }
+    ],
+    "choices": [
+        {
+            "id": 1,
+            "questionId": 1,
+            "content": "First choice",
+            "answer": true
+        },
+        {
+            "id": 2,
+            "questionId": 1,
+            "content": "Second choice",
+            "answer": false
+        },
+        {
+            "id": 3,
+            "questionId": 1,
+            "content": "Third choice",
+            "answer": false
+        },
+        {
+            "id": 4,
+            "questionId": 1,
+            "content": "Fourth choice",
+            "answer": false
+        },
+        {
+            "id": 5,
+            "questionId": 2,
+            "content": "First choice",
+            "answer": false
+        },
+        {
+            "id": 6,
+            "questionId": 2,
+            "content": "Second choice",
+            "answer": false
+        },
+        {
+            "id": 7,
+            "questionId": 2,
+            "content": "Third choice",
+            "answer": false
+        },
+        {
+            "id": 8,
+            "questionId": 2,
+            "content": "Fourth choice",
+            "answer": true
+        },
+        {
+            "id": 9,
+            "questionId": 3,
+            "content": "First choice",
+            "answer": false
+        },
+        {
+            "id": 10,
+            "questionId": 3,
+            "content": "Second choice",
+            "answer": false
+        },
+        {
+            "id": 11,
+            "questionId": 3,
+            "content": "Third choice",
+            "answer": true
+        },
+        {
+            "id": 12,
+            "questionId": 3,
+            "content": "Fourth choice",
+            "answer": false
+        }
+    ],
+    "quizQuestions": []
 }

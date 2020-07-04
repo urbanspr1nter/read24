@@ -4,6 +4,7 @@ import {mountBook} from './routes/book';
 import { mountQuiz } from './routes/quiz';
 import { mountStudent } from './routes/student';
 import { mountLogin } from './routes/login';
+import {maybeLoadDb} from './db/memory';
 
 const app = express();
 
@@ -13,11 +14,16 @@ app.get('/ping', (req, res) => {
     res.status(200).send('pong');
 });
 
+app.get('/debug/db', (req, res) => {
+    return res.status(200).json(maybeLoadDb());
+});
+
 mountLogin(app);
 mountBook(app);
 mountQuiz(app);
 mountStudent(app);
 
 app.listen(3000, () => {
+    console.log(`Running on: ${__dirname}`);
     console.log('It works!');
 });
