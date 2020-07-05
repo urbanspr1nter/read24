@@ -4,7 +4,7 @@ import {mountBook} from './routes/book';
 import { mountQuiz } from './routes/quiz';
 import { mountStudent } from './routes/student';
 import { mountLogin } from './routes/login';
-import {maybeLoadDb} from './db/memory';
+import { MemoryDb } from './db/memory';
 
 const app = express();
 
@@ -15,7 +15,7 @@ app.get('/ping', (req, res) => {
 });
 
 app.get('/debug/db', (req, res) => {
-    return res.status(200).json(maybeLoadDb());
+    return res.status(200).json(MemoryDb.dump());
 });
 
 mountLogin(app);

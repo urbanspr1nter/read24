@@ -143,5 +143,7 @@
             "answer": false
         }
     ],
-    "quizQuestions": []
+    "quizQuestions": [],
+    "studentAnswers": [],
+    "ratings": []
 }
