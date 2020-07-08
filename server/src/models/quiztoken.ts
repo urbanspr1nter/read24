@@ -33,6 +33,16 @@ export class QuizToken
 
         return new QuizToken().load(id);
     }
+
+    public static listByStudentId(studentId: number) {
+        const ids = (MemoryDb.select(
+            'quizTokens',
+            (o: DataRow) =>
+                (o as QuizToken).studentId === studentId) as QuizToken[])
+        .map(q => q.id);
+
+        return ids.map(id => new QuizToken().load(id));
+    }
 }
 
 export enum QuizStatus {

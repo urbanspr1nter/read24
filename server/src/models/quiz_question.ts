@@ -1,4 +1,5 @@
 import { DataRow, BaseResource } from "../db/types";
+import { MemoryDb } from "../db/memory";
 
 export interface QuizQuestionType extends DataRow {
     quizToken: string;
@@ -19,5 +20,11 @@ export class QuizQuestion
             this.quizToken = initialProperties.quizToken;
             this.questionId = initialProperties.questionId;
         }
+    }
+
+    public static listByQuizToken(quizToken: string) {
+        const quizQuestionTypes = MemoryDb.select('quizQuestions', o => (o as QuizQuestionType).quizToken === quizToken) as QuizQuestionType[];
+
+        return quizQuestionTypes.map(qqt => new QuizQuestion().load(qqt.id));
     }
 }
