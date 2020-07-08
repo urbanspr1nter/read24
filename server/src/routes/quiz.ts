@@ -1,17 +1,18 @@
 import { IRouter } from "express";
 import * as uuid from "uuid";
 import { QuizToken, QuizStatus } from "../models/quiztoken";
-import { MemoryDb } from "../db/memory";
+import { Question } from "../models/question";
+import { Choice } from "../models/choice";
+import { QuizQuestion } from "../models/quiz_question";
+import { StudentAnswer } from "../models/student_answer";
+import { Rating } from "../models/rating";
 
 function buildQuiz(bookId: number) {
-    const result = [];
-    const questions = MemoryDb.select('questions', q => q.bookId === bookId);
-    for(const q of questions) {
-        result.push({
-            question: q,
-            choices: MemoryDb.select('choices', c => c.questionId === q.id)
-        });
-    }
+    const result = Question.listByBookId(bookId)
+        .map(q => ({
+            question: q.json(),
+            choices: Choice.listByQuestionId(q.id).map(c => c.json())
+        }));
 
     return result;
 }
@@ -22,31 +23,27 @@ export function mountQuiz(app: IRouter) {
         const studentId = req.body.studentId;
         const token = uuid.v4();
 
-        const quizToken: QuizToken = {
-            id: 1,
+        const quizToken = new QuizToken({
             status: QuizStatus.Incomplete,
             bookId,
             studentId,
             token
-        };
-
-        MemoryDb.insert('quizTokens', quizToken);
+        });
+        quizToken.insert();
 
         const quiz = buildQuiz(bookId);
 
         // Associate each question with the quiz
-        let i = 1;
         for(const el of quiz) {
-            const quizQuestion = {
-                id: i++,
+            const quizQuestion = new QuizQuestion({
                 quizToken: token,
                 questionId: el.question.id
-            };
+            });
 
-            MemoryDb.insert('quizQuestions', quizQuestion);
+            quizQuestion.insert();
         }
-        
-        return res.status(200).json({token, quiz});
+
+       return res.status(200).json({token, quiz});
     });
 
     app.post('/quiz/book/question', (req, res) => {
@@ -56,34 +53,43 @@ export function mountQuiz(app: IRouter) {
         if (!quizToken || !choiceId)
             return res.status(400).json({message: 'Must provide both the quiz token, and choice.'});
 
-        const qt = MemoryDb.select('quizTokens', t => t.token === quizToken)[0];
-        const c = MemoryDb.select('choices', c => c.id === choiceId);
+        const qt = QuizToken.findByToken(quizToken);
+        const c = new Choice().load(choiceId);
 
-        const studentAnswer = {
-            id: 1,
+        const studentAnswer = new StudentAnswer({
             quizToken: qt.token,
             studentId: qt.studentId,
             questionId: c.questionId,
             choiceId: c.id
-        };
+        });
+        studentAnswer.insert();
 
-        MemoryDb.insert('studentAnswers', studentAnswer);
-
-        return res.status(200).json(studentAnswer);
+        return res.status(200).json(studentAnswer.json());
     });
 
     app.post('/quiz/book/rate', (req, res) => {
         const quizToken = req.body.quizToken;
         const rating = req.body.rating;
 
-        const r = {
-            id: 1,
+        const r = new Rating({
             quizToken,
             rating
-        };
+        });
+        r.insert();
 
-        MemoryDb.insert('ratings', r);
+        return res.status(200).json(r.json());
+    });
 
-        return res.status(200).json(r);
+    app.post('/quiz/status', (req, res) => {
+        const quizToken = req.body.quizToken;
+        const status = parseInt(req.body.status, 10);
+
+        const original = QuizToken.findByToken(quizToken);
+        original.token = quizToken;
+        original.status = status;
+
+        original.update(q => (q as QuizToken).token === quizToken);
+
+        return res.status(200).json(original.json());
     });
 }

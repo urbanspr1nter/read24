@@ -1,4 +1,6 @@
-export interface Teacher {
+import { DataRow } from "../db/types";
+
+export interface Teacher extends DataRow {
     id: number;
     firstName: string;
     middleName: string;

@@ -1,26 +1,27 @@
 import * as mockDb from '../mockDb.json';
-import { Book } from '../models/book';
-import { Student } from '../models/student';
-import { Classroom } from '../models/classroom';
-import { User } from '../models/user';
-import { QuizToken } from '../models/quiztoken';
-import { Question } from '../models/question';
-import { Choice } from '../models/choice';
-import { QuizQuestion } from '../models/quiz_question';
-import { StudentAnswer } from '../models/student_answer';
-import { Rating } from '../models/rating';
+import { BookType } from '../models/book';
+import { StudentType } from '../models/student';
+import { ClassroomType } from '../models/classroom';
+import { UserType } from '../models/user';
+import { QuizTokenType } from '../models/quiztoken';
+import { QuestionType } from '../models/question';
+import { ChoiceType } from '../models/choice';
+import { QuizQuestionType } from '../models/quiz_question';
+import { StudentAnswerType } from '../models/student_answer';
+import { RatingType } from '../models/rating';
+import { DataRow } from './types';
 
 interface DataModel {
-    classrooms: Classroom[];
-    users: User[];
-    books: Book[];
-    students: Student[];
-    quizTokens: QuizToken[];
-    questions: Question[];
-    choices: Choice[];
-    quizQuestions: QuizQuestion[];
-    studentAnswers: StudentAnswer[];
-    ratings: Rating[];
+    classrooms: ClassroomType[];
+    users: UserType[];
+    books: BookType[];
+    students: StudentType[];
+    quizTokens: QuizTokenType[];
+    questions: QuestionType[];
+    choices: ChoiceType[];
+    quizQuestions: QuizQuestionType[];
+    studentAnswers: StudentAnswerType[];
+    ratings: RatingType[];
 }
 
 interface InMemoryDatabase {
@@ -33,15 +34,8 @@ const db: InMemoryDatabase = {
     data: mockDb
 };
 
-export interface DataObject {
-    id: number;
-    bookId?: number;
-    questionId?: number;
-    token?: string;
-}
-
 class _MemoryDb {
-    public insert(tableName: string, data: DataObject) {
+    public insert(tableName: string, data: DataRow) {
         let maxId = 0;
         const table = db.data[tableName];
 
@@ -57,11 +51,29 @@ class _MemoryDb {
         db.data[tableName].push(data);
     }
 
-    public find(tableName: string, id: number) {
-        return db.data[tableName].find((o: DataObject) => o.id === id);
+    public update(tableName: string, data: object, whereFunc: (o: DataRow) => boolean) {
+        if (db.data[tableName].length === 0)
+            return 0;
+
+        const rows = db.data[tableName].filter(whereFunc);
+
+        for (const row of rows) {
+            const id = row.id;
+
+            Object.assign(row, data);
+
+            // Keep the old id
+            row.id = id;
+        }
+
+        return rows.length;
     }
 
-    public select(tableName: string, whereFunc?: (o: DataObject) => boolean) {
+    public find(tableName: string, id: number) {
+        return db.data[tableName].find((o: DataRow) => o.id === id);
+    }
+
+    public select(tableName: string, whereFunc?: (o: DataRow) => boolean) {
         if (!whereFunc)
             return db.data[tableName];
 

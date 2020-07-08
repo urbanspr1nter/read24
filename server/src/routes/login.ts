@@ -1,13 +1,8 @@
 import { IRouter } from "express";
 import * as bcrypt from 'bcrypt';
-import { MemoryDb } from "../db/memory";
 import { Classroom } from "../models/classroom";
 import { Student } from "../models/student";
 import { User } from "../models/user";
-
-const classrooms = MemoryDb.select('classrooms');
-const students = MemoryDb.select('students');
-const users = MemoryDb.select('users');
 
 function hashPassword(plainTextPassword: string) {
     const saltRounds = 7;
@@ -34,7 +29,7 @@ export function mountLogin(app: IRouter) {
         if (!username || !password)
             return res.status(400).json({message: 'Must provide username, and password.'});
 
-        const user = users.find((u: User) => u.username === username);
+        const user = User.findByUsername(username);
 
         if (!user)
             return res.status(404).json({message: 'Could not find user by the username.'});
@@ -42,7 +37,7 @@ export function mountLogin(app: IRouter) {
         if (!isValidHash(password, user.password, user.salt))
             return res.status(401).json({message: 'Invalid password.'});
 
-        const classroom = classrooms.find((c: Classroom) => c.id === students.find((s: Student) => s.userId === user.id).classroomId);
+        const classroom = new Classroom().load(Student.findByUserId(user.id).classroomId);
 
         return res.status(200).json({message: `Welcome to ${classroom.name}`});
     });
