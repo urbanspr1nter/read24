@@ -22,14 +22,14 @@ function isValidHash(plainTextPassword: string, hashed: string, salt: string) {
 }
 
 export function mountLogin(app: IRouter) {
-    app.post('/login', (req, res) => {
+    app.post('/login', async (req, res) => {
         const username = req.body.username;
         const password = req.body.password;
 
         if (!username || !password)
             return res.status(400).json({message: 'Must provide username, and password.'});
 
-        const user = User.findByUsername(username);
+        const user = await User.findByUsername(username);
 
         if (!user)
             return res.status(404).json({message: 'Could not find user by the username.'});
@@ -37,7 +37,9 @@ export function mountLogin(app: IRouter) {
         if (!isValidHash(password, user.password, user.salt))
             return res.status(401).json({message: 'Invalid password.'});
 
-        const classroom = new Classroom().load(Student.findByUserId(user.id).classroomId);
+        const classroom = await new Classroom().load(
+            (await Student.findByUserId(user.id)).classroomId
+        );
 
         return res.status(200).json({message: `Welcome to ${classroom.name}`});
     });

@@ -1,11 +1,15 @@
-import { DataRow, BaseResource } from "../db/types";
+import { DataType } from "../db/types";
+import { BaseResource } from "../db/base_resource";
 
-export interface RatingType extends DataRow {
+export interface RatingType extends DataType {
     quizToken: string;
     rating: number;    
 };
 
-export class Rating extends BaseResource implements DataRow {
+export class Rating
+    extends BaseResource
+    implements RatingType {
+    
     public quizToken: string;
     public rating: number;
 

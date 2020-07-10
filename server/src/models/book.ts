@@ -1,7 +1,8 @@
-import { DataRow, BaseResource } from "../db/types";
-import { MemoryDb } from "../db/memory";
+import { DataType } from "../db/types";
+import { DatabaseConnector } from "../db/connector";
+import { BaseResource } from "../db/base_resource";
 
-export interface BookType extends DataRow {
+export interface BookType extends DataType {
     title: string;
     fiction: boolean;
     author: string;
@@ -43,15 +44,17 @@ export class Book
         }
     }
 
-    public static listAllBooksByRelevantTitles(title: string) {
-        const books: BookType[] = MemoryDb.select('books', b => (b as BookType).title.toLowerCase().indexOf(title) !== -1);
+    public static async listAllBooksByRelevantTitles(title: string) {
+        const books = await DatabaseConnector
+                        .select('books', (b: BookType) => b.title.toLowerCase().indexOf(title) !== -1) as BookType[];
 
-        return books.map(b => new Book().load(b.id));
+        return await Promise.all(books.map(async b => await new Book().load(b.id)));
     }
 
-    public static listAllBooksByRelevantAuthor(author: string) {
-        const books: BookType[] = MemoryDb.select('books', b => (b as BookType).author.toLowerCase().indexOf(author) !== -1);
+    public static async listAllBooksByRelevantAuthor(author: string) {
+        const books = await DatabaseConnector
+            .select('books', (b: BookType) => b.author.toLowerCase().indexOf(author) !== -1) as BookType[];
 
-        return books.map(b => new Book().load(b.id));
+        return await Promise.all(books.map(async b => await new Book().load(b.id)));
     }
 }

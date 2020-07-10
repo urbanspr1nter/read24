@@ -1,7 +1,8 @@
-import { DataRow, BaseResource } from "../db/types";
-import { MemoryDb } from "../db/memory";
+import { DataType } from "../db/types";
+import { DatabaseConnector } from "../db/connector";
+import { BaseResource } from "../db/base_resource";
 
-export interface ChoiceType extends DataRow {
+export interface ChoiceType extends DataType {
     questionId: number;
     content: string;
     answer: boolean;
@@ -25,12 +26,12 @@ export class Choice
         }
     }
 
-    public static listByQuestionId(questionId: number): Choice[] {
-        const choiceIds = MemoryDb.select('choices', c => (c as ChoiceType).questionId === questionId).map((c: ChoiceType) => c.id);
+    public static async listByQuestionId(questionId: number): Promise<Choice[]> {
+        const choiceIds = (await DatabaseConnector.select('choices', (c: ChoiceType) => c.questionId === questionId)).map((c: ChoiceType) => c.id);
 
         const choices = [];
         for(const id of choiceIds) {
-            choices.push(new Choice().load(id));
+            choices.push(await new Choice().load(id));
         }
 
         return choices;

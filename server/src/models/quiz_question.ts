@@ -1,7 +1,8 @@
-import { DataRow, BaseResource } from "../db/types";
-import { MemoryDb } from "../db/memory";
+import { DataType } from "../db/types";
+import { DatabaseConnector } from "../db/connector";
+import { BaseResource } from "../db/base_resource";
 
-export interface QuizQuestionType extends DataRow {
+export interface QuizQuestionType extends DataType {
     quizToken: string;
     questionId: number;
 };
@@ -22,8 +23,9 @@ export class QuizQuestion
         }
     }
 
-    public static listByQuizToken(quizToken: string) {
-        const quizQuestionTypes = MemoryDb.select('quizQuestions', o => (o as QuizQuestionType).quizToken === quizToken) as QuizQuestionType[];
+    public static async listByQuizToken(quizToken: string) {
+        const quizQuestionTypes = await DatabaseConnector
+            .select('quizQuestions', (o: QuizQuestionType) => o.quizToken === quizToken) as QuizQuestionType[];
 
         return quizQuestionTypes.map(qqt => new QuizQuestion().load(qqt.id));
     }

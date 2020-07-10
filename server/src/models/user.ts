@@ -1,13 +1,17 @@
-import { DataRow, BaseResource } from "../db/types";
-import { MemoryDb } from "../db/memory";
+import { DataType } from "../db/types";
+import { DatabaseConnector } from "../db/connector";
+import { BaseResource } from "../db/base_resource";
 
-export interface UserType extends DataRow {
+export interface UserType extends DataType {
     username: string;
     password: string;
     salt: string;
 };
 
-export class User extends BaseResource implements DataRow {
+export class User
+    extends BaseResource
+    implements UserType {
+    
     public username: string;
     public password: string;
     public salt: string;
@@ -22,9 +26,9 @@ export class User extends BaseResource implements DataRow {
         }
     }
 
-    public static findByUsername(username: string) {
-        const userType: UserType = MemoryDb.select('users', u => (u as UserType).username === username)[0];
+    public static async findByUsername(username: string) {
+        const userType = (await DatabaseConnector.select('users', (u: UserType) => u.username === username))[0];
     
-        return new User().load(userType.id);
+        return await new User().load(userType.id);
     }
 }

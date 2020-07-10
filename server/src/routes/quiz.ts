@@ -7,18 +7,26 @@ import { QuizQuestion } from "../models/quiz_question";
 import { StudentAnswer } from "../models/student_answer";
 import { Rating } from "../models/rating";
 
-function buildQuiz(bookId: number) {
-    const result = Question.listByBookId(bookId)
-        .map(q => ({
+async function buildQuiz(bookId: number) {
+    const questions = await Question.listByBookId(bookId);
+
+    const result = [];
+
+    for (let q of questions) {
+        const choices = await Choice.listByQuestionId(q.id);
+        const serialized = choices.map(c => c.json());
+        
+        result.push({
             question: q.json(),
-            choices: Choice.listByQuestionId(q.id).map(c => c.json())
-        }));
+            choices: serialized
+        });
+    }
 
     return result;
 }
 
 export function mountQuiz(app: IRouter) {
-    app.post('/quiz/book', (req, res) => {
+    app.post('/quiz/book', async (req, res) => {
         const bookId = req.body.bookId;
         const studentId = req.body.studentId;
         const token = uuid.v4();
@@ -31,7 +39,7 @@ export function mountQuiz(app: IRouter) {
         });
         quizToken.insert();
 
-        const quiz = buildQuiz(bookId);
+        const quiz = await buildQuiz(bookId);
 
         // Associate each question with the quiz
         for(const el of quiz) {
@@ -46,15 +54,15 @@ export function mountQuiz(app: IRouter) {
        return res.status(200).json({token, quiz});
     });
 
-    app.post('/quiz/book/question', (req, res) => {
+    app.post('/quiz/book/question', async (req, res) => {
         const quizToken = req.body.quizToken;
         const choiceId = req.body.choiceId;
 
         if (!quizToken || !choiceId)
             return res.status(400).json({message: 'Must provide both the quiz token, and choice.'});
 
-        const qt = QuizToken.findByToken(quizToken);
-        const c = new Choice().load(choiceId);
+        const qt = await QuizToken.findByToken(quizToken);
+        const c = await new Choice().load(choiceId);
 
         const studentAnswer = new StudentAnswer({
             quizToken: qt.token,
@@ -80,15 +88,14 @@ export function mountQuiz(app: IRouter) {
         return res.status(200).json(r.json());
     });
 
-    app.post('/quiz/status', (req, res) => {
+    app.post('/quiz/status', async (req, res) => {
         const quizToken = req.body.quizToken;
         const status = parseInt(req.body.status, 10);
 
-        const original = QuizToken.findByToken(quizToken);
+        const original = await QuizToken.findByToken(quizToken);
         original.token = quizToken;
         original.status = status;
-
-        original.update(q => (q as QuizToken).token === quizToken);
+        original.update();
 
         return res.status(200).json(original.json());
     });

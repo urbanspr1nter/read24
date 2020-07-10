@@ -1,7 +1,8 @@
-import { DataRow, BaseResource } from "../db/types";
-import { MemoryDb } from "../db/memory";
+import { DataType } from "../db/types";
+import { DatabaseConnector } from "../db/connector";
+import { BaseResource } from "../db/base_resource";
 
-export interface QuestionType extends DataRow {
+export interface QuestionType extends DataType {
     bookId: number;
     content: string;
 };
@@ -22,13 +23,13 @@ export class Question
         }
     }
 
-    public static listByBookId(bookId: number) {
-        const data = MemoryDb.select('questions', q => (q as Question).bookId === bookId) as Question[];
+    public static async listByBookId(bookId: number): Promise<Question[]> {
+        const data = await DatabaseConnector.select('questions', (q: QuestionType) => q.bookId === bookId) as QuestionType[];
 
-        const result = [];
+        const result: Question[] = [];
 
         for (const r of data) {
-            result.push(new Question().load(r.id));
+            result.push(await new Question().load(r.id));
         }
 
         return result;

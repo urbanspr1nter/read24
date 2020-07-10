@@ -10,6 +10,7 @@ import { QuizQuestionType } from '../models/quiz_question';
 import { StudentAnswerType } from '../models/student_answer';
 import { RatingType } from '../models/rating';
 import { DataRow } from './types';
+import { DbConnector } from './db_connector';
 
 interface DataModel {
     classrooms: ClassroomType[];
@@ -34,8 +35,8 @@ const db: InMemoryDatabase = {
     data: mockDb
 };
 
-class _MemoryDb {
-    public insert(tableName: string, data: DataRow) {
+class _MemoryDb extends DbConnector {
+    public insert(tableName: string, data: DataRow): Promise<number> {
         let maxId = 0;
         const table = db.data[tableName];
 
@@ -49,13 +50,15 @@ class _MemoryDb {
         data.id = maxId;
 
         db.data[tableName].push(data);
+
+        return Promise.resolve(1);
     }
 
-    public update(tableName: string, data: object, whereFunc: (o: DataRow) => boolean) {
+    public update(tableName: string, data: DataRow): Promise<number> {
         if (db.data[tableName].length === 0)
-            return 0;
+            return Promise.resolve(0);
 
-        const rows = db.data[tableName].filter(whereFunc);
+        const rows = db.data[tableName].filter((r: DataRow) => r.id === data.id);
 
         for (const row of rows) {
             const id = row.id;
@@ -66,18 +69,21 @@ class _MemoryDb {
             row.id = id;
         }
 
-        return rows.length;
+        return Promise.resolve(rows.length);
     }
 
-    public find(tableName: string, id: number) {
-        return db.data[tableName].find((o: DataRow) => o.id === id);
+    public find(tableName: string, id: number): Promise<DataRow> {
+        return Promise.resolve(db.data[tableName].find((o: DataRow) => o.id === id));
     }
 
-    public select(tableName: string, whereFunc?: (o: DataRow) => boolean) {
+    public select(tableName: string, whereFunc?: (o: DataRow) => boolean): Promise<DataRow[]> {
         if (!whereFunc)
-            return db.data[tableName];
+            return Promise.resolve(db.data[tableName]);
 
-        return db.data[tableName].filter(whereFunc);
+
+        const filtered: DataRow[] = db.data[tableName].filter(whereFunc);
+
+        return Promise.resolve(filtered);
     }
 
     public dump() {

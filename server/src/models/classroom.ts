@@ -1,11 +1,15 @@
-import { DataRow, BaseResource } from "../db/types";
+import { DataType } from "../db/types";
+import { BaseResource } from "../db/base_resource";
 
-export interface ClassroomType extends DataRow {
+export interface ClassroomType extends DataType {
     name: string;
     slug: string;
 };
 
-export class Classroom extends BaseResource implements DataRow {
+export class Classroom 
+    extends BaseResource
+    implements ClassroomType {
+    
     public name: string;
     public slug: string;
 

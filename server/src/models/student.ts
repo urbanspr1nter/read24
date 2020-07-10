@@ -1,7 +1,8 @@
-import { DataRow, BaseResource } from "../db/types";
-import { MemoryDb } from "../db/memory";
+import { DataType } from "../db/types";
+import { DatabaseConnector } from "../db/connector";
+import { BaseResource } from "../db/base_resource";
 
-export interface StudentType extends DataRow {
+export interface StudentType extends DataType {
     classroomId: number;
     firstName: string;
     middleName: string;
@@ -12,7 +13,7 @@ export interface StudentType extends DataRow {
 
 export class Student
     extends BaseResource
-    implements DataRow {
+    implements StudentType {
 
     public classroomId: number;
     public firstName: string;
@@ -34,9 +35,9 @@ export class Student
         }
     }
 
-    public static findByUserId(userId: number) {
-        const studentType: StudentType = MemoryDb.select('students', s => (s as StudentType).userId === userId)[0];
+    public static async findByUserId(userId: number) {
+        const studentType = (await DatabaseConnector.select('students', s => (s as StudentType).userId === userId))[0];
 
-        return new Student().load(studentType.id);
+        return await new Student().load(studentType.id);
     }
 }

@@ -1,7 +1,8 @@
-import { DataRow, BaseResource } from "../db/types";
-import { MemoryDb } from "../db/memory";
+import { DataType } from "../db/types";
+import { DatabaseConnector } from "../db/connector";
+import { BaseResource } from "../db/base_resource";
 
-export interface QuizTokenType extends DataRow {
+export interface QuizTokenType extends DataType {
     studentId: number;
     bookId: number;
     token: string;
@@ -28,18 +29,15 @@ export class QuizToken
         }
     }
 
-    public static findByToken(token: string) {
-        const id = (MemoryDb.select('quizTokens', (o: DataRow) => (o as QuizToken).token === token)[0] as QuizToken).id;
+    public static async findByToken(token: string) {
+        const id = (await DatabaseConnector.select('quizTokens', (o: QuizTokenType) => o.token === token))[0].id;
 
-        return new QuizToken().load(id);
+        return await new QuizToken().load(id);
     }
 
-    public static listByStudentId(studentId: number) {
-        const ids = (MemoryDb.select(
-            'quizTokens',
-            (o: DataRow) =>
-                (o as QuizToken).studentId === studentId) as QuizToken[])
-        .map(q => q.id);
+    public static async listByStudentId(studentId: number) {
+        const ids = (await DatabaseConnector.select('quizTokens', (o: QuizTokenType) => o.studentId === studentId))
+            .map(q => q.id);
 
         return ids.map(id => new QuizToken().load(id));
     }
