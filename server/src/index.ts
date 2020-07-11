@@ -5,6 +5,7 @@ import { mountQuiz } from './routes/quiz';
 import { mountStudent } from './routes/student';
 import { mountLogin } from './routes/login';
 import { MemoryDb } from './db/memory';
+import { mountAdmin } from './routes/admin';
 
 const app = express();
 
@@ -19,6 +20,7 @@ app.get('/debug/db', (req, res) => {
 });
 
 mountLogin(app);
+mountAdmin(app);
 mountBook(app);
 mountQuiz(app);
 mountStudent(app);
