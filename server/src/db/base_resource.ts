@@ -34,7 +34,9 @@ export abstract class BaseResource implements DataType {
 
         const toSave = this.serializeForDb();
 
-        await DatabaseConnector.insert(this._tableName, toSave);
+        const id = await DatabaseConnector.insert(this._tableName, toSave);
+
+        this.id = id;
 
         return this;
     }
@@ -52,6 +54,15 @@ export abstract class BaseResource implements DataType {
         return this;
     }
 
+    public async delete() {
+        if (this.id === 0)
+            return this;
+
+        await DatabaseConnector.delete(this._tableName, (o: DataRow) => o.id === this.id);
+
+        return this;
+    }
+
     public serializeForDb(): Partial<DataRow> {
         const result = {};
         for (const prop in this) {
@@ -60,6 +71,8 @@ export abstract class BaseResource implements DataType {
 
             result[prop.toString()] = this[prop];
         }
+
+        console.log(`Serialized for DB`, result);
 
         return result;
     }

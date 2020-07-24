@@ -40,4 +40,10 @@ export class Student
 
         return await new Student().load(studentType.id);
     }
+
+    public static async listByClassroomId(classroomId: number) {
+        const studentTypes = await DatabaseConnector.select('students', (s: StudentType) => s.classroomId === classroomId) as StudentType[];
+
+        return await Promise.all(studentTypes.map(async s => await new Student().load(s.id)));
+    }
 }

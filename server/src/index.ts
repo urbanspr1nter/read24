@@ -1,3 +1,8 @@
+import * as dotenv from 'dotenv';
+const config = dotenv.config();
+
+console.log(config.parsed);
+
 import * as express from 'express';
 import * as bodyParser from 'body-parser';
 import {mountBook} from './routes/book';

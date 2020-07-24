@@ -51,7 +51,7 @@ class _MemoryDb extends DbConnector {
 
         db.data[tableName].push(data);
 
-        return Promise.resolve(1);
+        return Promise.resolve(maxId);
     }
 
     public update(tableName: string, data: DataRow): Promise<number> {
@@ -84,6 +84,15 @@ class _MemoryDb extends DbConnector {
         const filtered: DataRow[] = db.data[tableName].filter(whereFunc);
 
         return Promise.resolve(filtered);
+    }
+
+    public delete(tableName: string, whereFunc: (o: DataRow) => boolean): Promise<number> {
+        const filteredIds = db.data[tableName].filter(whereFunc).map((f: DataRow) => f.id);
+
+        db.data[tableName] = db.data[tableName].filter(
+            (r: DataRow) => !filteredIds.find((f: DataRow) => f.id === r.id));
+
+        return Promise.resolve(filteredIds.length);
     }
 
     public dump() {

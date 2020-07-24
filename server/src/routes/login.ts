@@ -1,25 +1,8 @@
 import { IRouter } from "express";
-import * as bcrypt from 'bcrypt';
 import { Classroom } from "../models/classroom";
 import { Student } from "../models/student";
 import { User } from "../models/user";
-
-function hashPassword(plainTextPassword: string) {
-    const saltRounds = 7;
-    const salt = bcrypt.genSaltSync(saltRounds);
-    const hashed = bcrypt.hashSync(plainTextPassword, salt);
-
-    return {
-        salt,
-        hashed
-    };
-}
-
-function isValidHash(plainTextPassword: string, hashed: string, salt: string) {
-    const testHashed = bcrypt.hashSync(plainTextPassword, salt);
-
-    return hashed === testHashed;
-}
+import { isValidHash } from "../util/util";
 
 export function mountLogin(app: IRouter) {
     app.post('/login', async (req, res) => {

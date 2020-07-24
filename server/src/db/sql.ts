@@ -21,7 +21,8 @@ const TableMapping = {
     students: 'students',
     studentAnswers: 'student_answers',
     teachers: 'teachers',
-    teacherClassrooms: 'teacher_classrooms'
+    teacherClassrooms: 'teacher_classrooms',
+    users: 'users'
 };
 
 connection.connect();
@@ -53,8 +54,9 @@ export class _MySqlDb extends DbConnector {
 
                 console.log(query.sql);
                 console.log('INSERT results', results);
+                console.log('Last Insert ID', results.insertId);
 
-                return resolve(1);
+                return resolve(results.insertId);
             });
         });
 
@@ -119,6 +121,30 @@ export class _MySqlDb extends DbConnector {
             });
         });
 
+
+        return promise;
+    }
+
+    public delete(tableName: string, whereFunc: (o: DataRow) => boolean): Promise<number> {
+        const promise = new Promise<number>(async (resolve, reject) => {
+            const selected = await this.select(tableName, whereFunc);
+
+            if (selected.length === 0)
+                return resolve(0);
+
+            const ids = selected.map((r: DataRow) => r.id);
+            const idGroup = `(${ids.join(', ')})`;
+
+            const query = connection.query(`DELETE FROM ${TableMapping[tableName]} WHERE id IN ${idGroup}`, (err, results) => {
+                if (err)
+                    return reject(err);
+
+                console.log(query.sql);
+                console.log(`DELETED IDS: ${idGroup} FROM ${tableName}`);
+
+                return resolve(results.affectedRows);
+            });
+        });
 
         return promise;
     }
