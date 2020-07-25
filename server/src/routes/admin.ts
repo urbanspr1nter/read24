@@ -1,60 +1,10 @@
 import { IRouter } from "express";
 import { Student } from "../models/student";
-import { BookType, Book } from "../models/book";
-import { Question, QuestionType } from "../models/question";
-import { Choice, ChoiceType } from "../models/choice";
+import { Book } from "../models/book";
+import { Question } from "../models/question";
+import { Choice } from "../models/choice";
 import { hashPassword } from "../util/util";
 import { User } from "../models/user";
-
-interface BookQuiz {
-    book: BookType,
-    quiz: QuizDatum[]
-};
-
-interface QuizDatum {
-    question: QuestionType,
-    choices: ChoiceType[]
-};
-
-async function saveBookAsQuiz(body: BookQuiz) {
-    const book = await new Book(body.book).insert();
-
-    for (const d of body.quiz) {
-        const question = d.question;
-        const choices = d.choices;
-
-        const questionResource = await new Question({
-            ...question,
-            bookId: book.id
-        }).insert();
-        
-        for (const c of choices) {
-            await new Choice({
-                ...c,
-                questionId: questionResource.id
-            }).insert();
-        }
-    }
-}
-
-async function readBookAsQuiz(bookId: number) {
-    const book = await new Book().load(bookId);
-
-    const questions = await Question.listByBookId(book.id);
-
-    const result = { book, quiz: [] };
-
-    for (const q of questions) {
-        const item = {question: q.json(), choices: []};
-
-        const choices = await Choice.listByQuestionId(q.id);
-        item.choices = choices.map(c => c.json());
-
-        result.quiz.push(item)
-    }
-
-    return result;
-}
 
 export function mountAdmin(app: IRouter) {
     /**
@@ -148,18 +98,142 @@ export function mountAdmin(app: IRouter) {
     /**
      * Admin Quiz Routes
      */
-     app.post('/admin/quiz/import', (req, res) => {
+     app.post('/admin/quiz/import', async (req, res) => {        
+        const {
+            book,
+            questions
+        } = req.body;
+
+        const b = await new Book({
+            title: book.title,
+            fiction: book.fiction === 'true' ? true : false,
+            author: book.author,
+            year: book.year,
+            publisher: book.publisher,
+            genre: parseInt(book.genre),
+            isbn: book.isbn,
+            lexile: parseInt(book.lexile),
+            wordCount: parseInt(book.wordCount)
+        }).insert();
+
+        for (const q of questions) {
+            const content = q.content;
+            const bookId = b.id;
+
+            const question = await new Question({
+                bookId,
+                content
+            }).insert();
+
+            for(const c of q.choices) {
+                await new Choice({
+                    questionId: question.id,
+                    content: c.content,
+                    answer: c.answer === 'true' ? true : false
+                }).insert();
+            }
+        }
+
+        return res.status(200).json({message: 'Quiz has been created.'});
+     });
+
+     app.put('/admin/quiz/import', async (req, res) => {
+         const {
+             book,
+             questions
+         } = req.body;
+
+         if (!book.id)
+            return res.status(400).json({message: 'Bad request. No book.id provided.'});
+
+        const b = await new Book().load(parseInt(book.id));
+        b.title = book.title;
+        b.fiction = book.fiction === 'true' ? true : false;
+        b.author = book.author;
+        b.year = book.year;
+        b.publisher = book.publisher;
+        b.genre = parseInt(book.genre);
+        b.isbn = book.isbn;
+        b.lexile = parseInt(book.lexile);
+        b.wordCount = parseInt(book.wordCount);
+
+        await b.update();
+
+        for(const q of questions) {
+            const bookId = b.id;
+            const content = q.content;
+
+            let question = null;
+            if (q.id) {
+                const questionId = parseInt(q.id);
+
+                question = await new Question().load(questionId);
+                question.content = content;
+
+                await question.update();
+            } else {
+                question = await new Question({
+                    bookId,
+                    content
+                }).insert();
+            }
+
+            for(const c of q.choices) {
+                const content = c.content;
+                const answer = c.answer === 'true' ? true : false;
+                let choice = null;
+                if (c.id) {
+                    const choiceId = parseInt(c.id);
+
+                    choice = await new Choice().load(choiceId);
+                    choice.content = content;
+                    choice.answer = answer;
+
+                    await choice.update();
+                } else {
+                    choice = await new Choice({
+                        questionId: question.id,
+                        content: c.content,
+                        answer: c.answer === 'true' ? true : false
+                    }).insert();
+                }
+            }
+        }
+        
          return res.status(200).json({});
      });
 
-     app.put('/admin/quiz/import', (req, res) => {
-         return res.status(200).json({});
-     });
+     app.get('/admin/quiz/book/:bookId', async (req, res) => {
+        const bookId = req.params.bookId;
 
-     app.get('/admin/quiz/book/:bookId', (req, res) => {
-         const bookId = req.params.bookId;
+        const b = await new Book().load(parseInt(bookId));
 
-         return res.status(200).json({bookId});
+        const book = {...b.json(), id: b.id};
+        const questions = [];
+
+        const qs = await Question.listByBookId(b.id);
+        for(const q of qs) {
+            const curr = {
+                id: q.id,
+                content: null,
+                choices: []
+            };
+
+            curr.content = q.content;
+
+            const choices = await Choice.listByQuestionId(q.id);
+            for(const c of choices) {
+                curr.choices.push({
+                    id: c.id,
+                    content: c.content,
+                    answer: c.answer ? 'true' : 'false'
+                });
+            }
+
+            questions.push(curr);
+        }
+
+        return res.status(200).json({book, questions});
      });
 
      app.delete('/admin/quiz/book/:bookId', (req, res) => {
