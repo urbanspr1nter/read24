@@ -1,10 +1,11 @@
 import { DataType, DataRow } from "./types";
-import { DatabaseConnector } from "./connector";
+import { DatabaseConnector, DeleteOptions } from "./connector";
 
 export abstract class BaseResource implements DataType {
     public id: number;
     public dateCreated: number;
     public dateUpdated: number;
+    public dateDeleted: number;
 
     private _tableName: string;
 
@@ -13,17 +14,20 @@ export abstract class BaseResource implements DataType {
 
         this.dateCreated = 0;
         this.dateUpdated = 0;
+        this.dateDeleted = 0;
     }
 
     public async load(id: number) {
-        const found = await DatabaseConnector.find(this._tableName, id);
 
-        if (!found)
-            throw new Error(`Did not find a row with ID value: ${this.id}`);
+        try {
+            const found = await DatabaseConnector.find(this._tableName, id);
 
-        Object.assign(this, found);
+            Object.assign(this, found);
 
-        return Promise.resolve(this);
+            return Promise.resolve(this);
+        } catch (e) {
+            return Promise.reject({status: 'not_found', message: `Did not find a resource with ID value: ${id}`});
+        }
     }
 
     public async insert() {
@@ -54,11 +58,20 @@ export abstract class BaseResource implements DataType {
         return this;
     }
 
-    public async delete() {
+    public async delete(opts?: DeleteOptions) {
         if (this.id === 0)
             return this;
 
-        await DatabaseConnector.delete(this._tableName, (o: DataRow) => o.id === this.id);
+        this.dateDeleted = Date.now();
+
+        const toSave = this.serializeForDb();
+
+        console.log(`Resource delete. opts: ${opts}, id: ${this.id}`);
+
+        if (opts && opts.hardDelete)
+            await DatabaseConnector.delete(this._tableName, (o: DataRow) => o.id === this.id);
+        else
+            await DatabaseConnector.update(this._tableName, toSave);
 
         return this;
     }
@@ -82,6 +95,7 @@ export abstract class BaseResource implements DataType {
 
         delete obj.dateCreated;
         delete obj.dateUpdated;
+        delete obj.dateDeleted;
 
         return obj;
     }

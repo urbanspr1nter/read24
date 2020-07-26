@@ -11,6 +11,7 @@ import { StudentAnswerType } from '../models/student_answer';
 import { RatingType } from '../models/rating';
 import { DataRow } from './types';
 import { DbConnector } from './db_connector';
+import { SelectOptions } from './connector';
 
 interface DataModel {
     classrooms: ClassroomType[];
@@ -76,14 +77,16 @@ class _MemoryDb extends DbConnector {
         return Promise.resolve(db.data[tableName].find((o: DataRow) => o.id === id));
     }
 
-    public select(tableName: string, whereFunc?: (o: DataRow) => boolean): Promise<DataRow[]> {
+    public select(tableName: string, whereFunc?: (o: DataRow) => boolean, opts?: SelectOptions): Promise<DataRow[]> {
         if (!whereFunc)
             return Promise.resolve(db.data[tableName]);
 
-
         const filtered: DataRow[] = db.data[tableName].filter(whereFunc);
 
-        return Promise.resolve(filtered);
+        if (opts && opts.includeDeleted)
+            return Promise.resolve(filtered);
+
+        return Promise.resolve(filtered.filter((o : DataRow) => !o.dateDeleted));
     }
 
     public delete(tableName: string, whereFunc: (o: DataRow) => boolean): Promise<number> {

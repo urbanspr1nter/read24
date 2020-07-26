@@ -94,3 +94,14 @@ create table users (
     `password` text not null,
     `salt` text not null
 );
+
+alter table books add `dateDeleted` bigint not null default 0;
+alter table choices add `dateDeleted` bigint not null default 0;
+alter table classrooms add `dateDeleted` bigint not null default 0;
+alter table questions add `dateDeleted` bigint not null default 0;
+alter table quiz_questions add `dateDeleted` bigint not null default 0;
+alter table quiz_tokens add `dateDeleted` bigint not null default 0;
+alter table ratings add `dateDeleted` bigint not null default 0;
+alter table student_answers add `dateDeleted` bigint not null default 0;
+alter table students add `dateDeleted` bigint not null default 0;
+alter table users add `dateDeleted` bigint not null default 0;

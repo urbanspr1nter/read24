@@ -1,6 +1,7 @@
 import * as mysql from 'mysql';
 import { DbConnector } from './db_connector';
 import { DataRow } from './types';
+import { SelectOptions } from './connector';
 
 const connection = mysql.createConnection({
     host: 'localhost',
@@ -90,25 +91,27 @@ export class _MySqlDb extends DbConnector {
 
     public find(tableName: string, id: number): Promise<DataRow> {
         const promise = new Promise<DataRow>((resolve, reject) => {
-            const query = connection.query(mysql.format(`SELECT * FROM ${TableMapping[tableName]} WHERE id = ?`, [id]), (err, results) => {
-                if (err)
-                    return reject(err);
+            const opts: SelectOptions = {
+                includeDeleted: false
+            };
 
-                console.log(query.sql);
-                console.log('SELECT by ID results', results);
-
-                const result = Object.assign({}, results[0]);
-
-                return resolve(result as DataRow);
-            });
+            return this.select(tableName, (o: DataRow) => o.id === id, opts)
+                .then(results => results.length === 0 ? reject(null) : resolve(results[0]))
+                .catch(e => reject(e));
         });
 
         return promise;
     }
 
-    public select(tableName: string, whereFunc?: (o: DataRow) => boolean): Promise<DataRow[]> {
+    public select(tableName: string, whereFunc?: (o: DataRow) => boolean, opts?: SelectOptions): Promise<DataRow[]> {
         const promise = new Promise<DataRow[]>((resolve, reject) => {
-            const query = connection.query(`SELECT * FROM ${TableMapping[tableName]}`, (err, results) => {
+            // By default, do not include rows where deletedAt is set. This is a virtual deletion.
+            let queryString = `SELECT * FROM ${TableMapping[tableName]} WHERE dateDeleted = 0`;
+
+            if (opts && opts.includeDeleted)
+                queryString = `SELECT * FROM ${TableMapping[tableName]}`;
+
+            const query = connection.query(queryString, (err, results) => {
                 if (err)
                     return reject(err);
 

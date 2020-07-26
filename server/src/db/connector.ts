@@ -12,3 +12,11 @@ else {
     DatabaseConnector = MemoryDb;
     console.log('Using the in-memory database');
 }
+
+export interface DeleteOptions {
+    hardDelete: boolean;
+}
+
+export interface SelectOptions {
+    includeDeleted: boolean;
+}

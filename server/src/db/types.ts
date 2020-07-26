@@ -12,6 +12,7 @@ export interface DataType {
     id: number;
     dateCreated?: number;
     dateUpdated?: number;
+    dateDeleted?: number;
 }
 
 export type DataRow = DataType & 

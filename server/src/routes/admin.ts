@@ -3,7 +3,7 @@ import { Student } from "../models/student";
 import { Book } from "../models/book";
 import { Question } from "../models/question";
 import { Choice } from "../models/choice";
-import { hashPassword } from "../util/util";
+import { hashPassword, errorStatusToHttpCode } from "../util/util";
 import { User } from "../models/user";
 
 export function mountAdmin(app: IRouter) {
@@ -206,39 +206,61 @@ export function mountAdmin(app: IRouter) {
      app.get('/admin/quiz/book/:bookId', async (req, res) => {
         const bookId = req.params.bookId;
 
-        const b = await new Book().load(parseInt(bookId));
+        try {
+            const b = await new Book().load(parseInt(bookId));
 
-        const book = {...b.json(), id: b.id};
-        const questions = [];
-
-        const qs = await Question.listByBookId(b.id);
-        for(const q of qs) {
-            const curr = {
-                id: q.id,
-                content: null,
-                choices: []
-            };
-
-            curr.content = q.content;
-
-            const choices = await Choice.listByQuestionId(q.id);
-            for(const c of choices) {
-                curr.choices.push({
-                    id: c.id,
-                    content: c.content,
-                    answer: c.answer ? 'true' : 'false'
-                });
+            const book = {...b.json(), id: b.id};
+            const questions = [];
+    
+            const qs = await Question.listByBookId(b.id);
+            for(const q of qs) {
+                const curr = {
+                    id: q.id,
+                    content: null,
+                    choices: []
+                };
+    
+                curr.content = q.content;
+    
+                const choices = await Choice.listByQuestionId(q.id);
+                for(const c of choices) {
+                    curr.choices.push({
+                        id: c.id,
+                        content: c.content,
+                        answer: c.answer ? 'true' : 'false'
+                    });
+                }
+    
+                questions.push(curr);
             }
-
-            questions.push(curr);
+    
+            return res.status(200).json({book, questions});
+        } catch (e) {
+            return res.status(errorStatusToHttpCode(e.status)).json(e);
         }
-
-        return res.status(200).json({book, questions});
      });
 
-     app.delete('/admin/quiz/book/:bookId', (req, res) => {
+     app.delete('/admin/quiz/book/:bookId', async (req, res) => {
          const bookId = req.params.bookId;
 
-         return res.status(200).json({bookId});
+         try {
+            const b = await new Book().load(parseInt(bookId));
+            const qs = await Question.listByBookId(b.id);
+            for (const q of qs) {
+                const cs = await Choice.listByQuestionId(q.id);
+
+                for(const c of cs) {
+                    await c.delete();
+                }
+
+                await q.delete();
+            }
+
+            await b.delete();
+   
+            return res.status(200).json({deletedAt: new Date(b.dateDeleted)});
+         } catch (e) {
+            return res.status(errorStatusToHttpCode(e.status)).json(e);
+         }
      });
 }

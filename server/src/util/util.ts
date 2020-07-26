@@ -17,3 +17,12 @@ export function isValidHash(plainTextPassword: string, hashed: string, salt: str
 
     return hashed === testHashed;
 }
+
+export function errorStatusToHttpCode(status: string) {
+    switch(status) {
+        case 'not_found':
+            return 404;
+        default:
+            return 400;
+    }
+}
