@@ -1,0 +1,16 @@
+.choice-form-container {
+    border: 1px solid rgb(128, 128, 128, 0.5);
+    padding: 12px;
+    margin: 16px;
+    margin-left: 32px;
+}
+
+.choice-form-container select {
+    width: 144px;
+}
+
+.choice-form-container h1 {
+    font-size: 1rem;
+    font-weight: bold;
+    text-transform: uppercase;
+}

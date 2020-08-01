@@ -1,0 +1,29 @@
+.add-book-container {
+    margin-top: 16px;
+}
+
+.add-book-container input {
+    border-radius: 0;
+}
+
+.add-book-container h1 {
+    font-weight: 200;
+}
+
+.add-book-container button {
+    margin-bottom: 8px;
+}
+
+.add-book-container label {
+    font-weight: bold;
+    font-size: 0.85rem;
+    color: #343434;
+}
+
+.add-book-container input {
+    width: 360px;
+}
+
+.add-book-container select {
+    width: 360px;
+}

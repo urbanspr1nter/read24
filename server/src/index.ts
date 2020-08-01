@@ -11,9 +11,11 @@ import { mountStudent } from './routes/student';
 import { mountLogin } from './routes/login';
 import { MemoryDb } from './db/memory';
 import { mountAdmin } from './routes/admin';
+import * as cors from 'cors';
 
 const app = express();
 
+app.use(cors());
 app.use(bodyParser.json());
 
 app.get('/ping', (req, res) => {
