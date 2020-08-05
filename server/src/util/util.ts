@@ -26,3 +26,7 @@ export function errorStatusToHttpCode(status: string) {
             return 400;
     }
 }
+
+export function isValue(val: any) {
+    return val !== undefined && val !== null;
+}

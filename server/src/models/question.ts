@@ -23,6 +23,18 @@ export class Question
         }
     }
 
+    public static async totalQuestionsForBookId(bookId: number) {
+        const data = await DatabaseConnector.select('questions', () => true, {
+            columns: ['count(id)'],
+            filters: [{
+                column: 'bookId',
+                value: String(bookId)
+            }]
+        });
+
+        return data[0]['count(id)'];
+    }
+
     public static async listByBookId(bookId: number): Promise<Question[]> {
         const data = await DatabaseConnector.select('questions', (q: QuestionType) => q.bookId === bookId) as QuestionType[];
 

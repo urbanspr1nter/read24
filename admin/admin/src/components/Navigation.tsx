@@ -11,6 +11,7 @@ export default function Navigation() {
                 <div className="navbar-nav">
                     <Link to="/" className="nav-item nav-link">Home</Link>
                     <Link to="/book/add" className="nav-item nav-link">Add Book</Link>
+                    <Link to="/book/list" className="nav-item nav-link">List Books</Link>
                 </div>
             </nav>
         </div>

@@ -2,6 +2,7 @@ import * as mysql from 'mysql';
 import { DbConnector } from './db_connector';
 import { DataRow } from './types';
 import { SelectOptions } from './connector';
+import { isValue } from '../util/util';
 
 const connection = mysql.createConnection({
     host: 'localhost',
@@ -105,11 +106,28 @@ export class _MySqlDb extends DbConnector {
 
     public select(tableName: string, whereFunc?: (o: DataRow) => boolean, opts?: SelectOptions): Promise<DataRow[]> {
         const promise = new Promise<DataRow[]>((resolve, reject) => {
-            // By default, do not include rows where deletedAt is set. This is a virtual deletion.
-            let queryString = `SELECT * FROM ${TableMapping[tableName]} WHERE dateDeleted = 0`;
+            let queryString = '';
 
-            if (opts && opts.includeDeleted)
-                queryString = `SELECT * FROM ${TableMapping[tableName]}`;
+            if (opts.columns && opts.columns.length > 0)
+                queryString = `SELECT ${opts.columns.join(',')} FROM ${TableMapping[tableName]} `;
+            else
+                queryString = `SELECT * FROM ${TableMapping[tableName]} `;
+
+            queryString += ' WHERE 1=1 '
+            // By default, do not include rows where deletedAt is set. This is a virtual deletion.
+            if (!opts || !opts.includeDeleted)
+                queryString += ' AND dateDeleted = 0 ';
+
+            if (opts && opts.filters && opts.filters.length > 0) {
+                const filters = opts.filters.map(f => `${f.column} = ${f.value}`).join(' AND ');
+                queryString += ` AND ${filters}`
+            }
+
+            if (opts && opts.orderBy)
+                queryString += ` ORDER BY ${opts.orderBy.column} ${opts.orderBy.ascending ? 'ASC': 'DESC'}`;
+            
+            if (opts && opts.limit && isValue(opts.offset))
+                queryString += ` LIMIT ${opts.offset}, ${opts.limit}`;
 
             const query = connection.query(queryString, (err, results) => {
                 if (err)
@@ -123,7 +141,6 @@ export class _MySqlDb extends DbConnector {
                 return resolve(resultRows.filter(whereFunc) as DataRow[]);
             });
         });
-
 
         return promise;
     }

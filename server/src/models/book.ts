@@ -44,6 +44,40 @@ export class Book
         }
     }
 
+    public static async numberOfPages() {
+        const results = await DatabaseConnector.select('books', () => true, {
+            columns: ['count(id)']
+        });
+
+        console.log(results);
+
+        return results[0]['count(id)'];
+    }
+    public static async lastBookTitle() {
+        const results = await DatabaseConnector.select('books', () => true, {
+            limit: 1,
+            orderBy: {
+                ascending: false,
+                column: 'title'
+            }
+        });
+
+        return results[0].title;
+    }
+
+    public static async listAllBooks(offset: number, limit: number) {
+        const books = await DatabaseConnector.select('books', () => true, {
+            limit,
+            offset,
+            orderBy: {
+                ascending: true,
+                column: 'title'
+            }
+        });
+
+        return await Promise.all(books.map(async b => await new Book().load(b.id)));
+    }
+
     public static async listAllBooksByRelevantTitles(title: string) {
         const books = await DatabaseConnector
                         .select('books', (b: BookType) => b.title.toLowerCase().indexOf(title) !== -1) as BookType[];

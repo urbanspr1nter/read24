@@ -17,6 +17,21 @@ export interface DeleteOptions {
     hardDelete: boolean;
 }
 
+export interface OrderByOptions {
+    column: string;
+    ascending: boolean;
+}
+
+export interface FilterOption {
+    column: string;
+    value: string;
+}
+
 export interface SelectOptions {
-    includeDeleted: boolean;
+    includeDeleted?: boolean;
+    orderBy?: OrderByOptions;
+    offset?: number;
+    limit?: number;
+    columns?: string[];
+    filters?: FilterOption[];
 }

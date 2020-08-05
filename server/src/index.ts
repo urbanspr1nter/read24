@@ -32,7 +32,7 @@ mountBook(app);
 mountQuiz(app);
 mountStudent(app);
 
-app.listen(3000, () => {
+app.listen(process.env.PORT || 5000, () => {
     console.log(`Running on: ${__dirname}`);
     console.log('It works!');
 });
