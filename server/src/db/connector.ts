@@ -27,6 +27,11 @@ export interface FilterOption {
     value: string;
 }
 
+export interface FullTextMatchOption {
+    columns: string[];
+    value: string
+}
+
 export interface SelectOptions {
     includeDeleted?: boolean;
     orderBy?: OrderByOptions;
@@ -34,4 +39,5 @@ export interface SelectOptions {
     limit?: number;
     columns?: string[];
     filters?: FilterOption[];
+    fullTextMatch?: FullTextMatchOption[];
 }

@@ -120,7 +120,13 @@ export class _MySqlDb extends DbConnector {
 
             if (opts && opts.filters && opts.filters.length > 0) {
                 const filters = opts.filters.map(f => `${f.column} = ${f.value}`).join(' AND ');
-                queryString += ` AND ${filters}`
+                queryString += ` AND ${filters}`;
+            }
+
+            if (opts && opts.fullTextMatch && opts.fullTextMatch.length > 0) {
+                const matchers = opts.fullTextMatch.map(f => 
+                    ` MATCH(${f.columns.join(', ')}) AGAINST ('+"${f.value}"' IN BOOLEAN MODE) `).join(' AND ');
+                queryString += ` AND ${matchers}`;
             }
 
             if (opts && opts.orderBy)

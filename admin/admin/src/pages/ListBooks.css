@@ -1,0 +1,21 @@
+.list-books table {
+    margin-top: 16px;
+}
+
+.list-books .page-nav-link {
+    font-size: large;
+    margin: 8px;
+    box-shadow: none;
+    border: none;
+    background-color: transparent;
+    color: #007bff;
+}
+
+.list-books .page-nav-link:hover {
+    text-decoration: underline;
+}
+
+.list-books .page-nav-link.active {
+    font-size: large;
+    font-weight: bold;
+}

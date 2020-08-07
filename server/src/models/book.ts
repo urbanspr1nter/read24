@@ -49,8 +49,6 @@ export class Book
             columns: ['count(id)']
         });
 
-        console.log(results);
-
         return results[0]['count(id)'];
     }
     public static async lastBookTitle() {
@@ -78,16 +76,104 @@ export class Book
         return await Promise.all(books.map(async b => await new Book().load(b.id)));
     }
 
-    public static async listAllBooksByRelevantTitles(title: string) {
-        const books = await DatabaseConnector
-                        .select('books', (b: BookType) => b.title.toLowerCase().indexOf(title) !== -1) as BookType[];
+    public static async numberOfPagesByRelevantTitle(title: string) {
+        const results = await DatabaseConnector.select('books', () => true, {
+            fullTextMatch: [
+                {
+                    columns: ['title'],
+                    value: title
+                },
+            ],
+            columns: ['count(id)']
+        });
+
+        return results[0]['count(id)'];
+    }
+
+    public static async lastBookTitleByRelevantTitle(title: string) {
+        const books = await DatabaseConnector.select('books', () => true, {
+            limit: 1,
+            orderBy: {
+                column: 'title',
+                ascending: false
+            },
+            fullTextMatch: [
+                {
+                    columns: ['title'],
+                    value: title
+                }
+            ]
+        });
+
+        return books[0].title;
+    }
+
+    public static async listAllBooksByRelevantTitles(offset: number, limit: number, title: string) {
+        const books = await DatabaseConnector.select('books', () => true, {
+            offset,
+            limit,
+            orderBy: {
+                column: 'title',
+                ascending: true
+            },
+            fullTextMatch: [
+                {
+                    columns: ['title'],
+                    value: title
+                }
+            ]
+        });
 
         return await Promise.all(books.map(async b => await new Book().load(b.id)));
     }
 
-    public static async listAllBooksByRelevantAuthor(author: string) {
-        const books = await DatabaseConnector
-            .select('books', (b: BookType) => b.author.toLowerCase().indexOf(author) !== -1) as BookType[];
+    public static async numberOfPagesByRelevantAuthor(author: string) {
+        const results = await DatabaseConnector.select('books', () => true, {
+            fullTextMatch: [
+                {
+                    columns: ['author'],
+                    value: author
+                },
+            ],
+            columns: ['count(id)']
+        });
+
+        return results[0]['count(id)'];
+    }
+
+    public static async lastBookTitleByRelevantAuthor(author: string) {
+        const books = await DatabaseConnector.select('books', () => true, {
+            limit: 1,
+            orderBy: {
+                column: 'author',
+                ascending: false
+            },
+            fullTextMatch: [
+                {
+                    columns: ['author'],
+                    value: author
+                }
+            ]
+        });
+
+        return books[0].title;
+    }
+
+    public static async listAllBooksByRelevantAuthor(offset: number, limit: number, author: string) {
+        const books = await DatabaseConnector.select('books', () => true, {
+            offset,
+            limit,
+            orderBy: {
+                column: 'author',
+                ascending: true
+            },
+            fullTextMatch: [
+                {
+                    columns: ['author'],
+                    value: author
+                }
+            ]
+        });
 
         return await Promise.all(books.map(async b => await new Book().load(b.id)));
     }

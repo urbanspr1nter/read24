@@ -5,8 +5,7 @@ import QuestionForm from '../components/QuestionForm';
 import { ChoiceItem } from '../common/types';
 import './AddBook.css';
 import AlertBanner, {AlertBannerType} from '../components/AlertBanner';
-
-const API_HOST = 'http://localhost:3000';
+import { API_HOST } from '../common/constants';
 
 interface QuestionItem {
     content: string;

@@ -105,3 +105,6 @@ alter table ratings add `dateDeleted` bigint not null default 0;
 alter table student_answers add `dateDeleted` bigint not null default 0;
 alter table students add `dateDeleted` bigint not null default 0;
 alter table users add `dateDeleted` bigint not null default 0;
+
+alter table books ADD fulltext (title);
+alter table books ADD fulltext (author);
