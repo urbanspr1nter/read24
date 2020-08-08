@@ -9,7 +9,6 @@ import {mountBook} from './routes/book';
 import { mountQuiz } from './routes/quiz';
 import { mountStudent } from './routes/student';
 import { mountLogin } from './routes/login';
-import { MemoryDb } from './db/memory';
 import { mountAdmin } from './routes/admin';
 import * as cors from 'cors';
 
@@ -20,10 +19,6 @@ app.use(bodyParser.json());
 
 app.get('/ping', (req, res) => {
     res.status(200).send('pong');
-});
-
-app.get('/debug/db', (req, res) => {
-    return res.status(200).json(MemoryDb.dump());
 });
 
 mountLogin(app);

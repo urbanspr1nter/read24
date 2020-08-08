@@ -93,7 +93,13 @@ export class _MySqlDb extends DbConnector {
     public find(tableName: string, id: number): Promise<DataRow> {
         const promise = new Promise<DataRow>((resolve, reject) => {
             const opts: SelectOptions = {
-                includeDeleted: false
+                includeDeleted: false,
+                filters: [
+                    {
+                        column: 'id',
+                        value: id.toString()
+                    }
+                ]
             };
 
             return this.select(tableName, (o: DataRow) => o.id === id, opts)
@@ -108,7 +114,7 @@ export class _MySqlDb extends DbConnector {
         const promise = new Promise<DataRow[]>((resolve, reject) => {
             let queryString = '';
 
-            if (opts.columns && opts.columns.length > 0)
+            if (opts && opts.columns && opts.columns.length > 0)
                 queryString = `SELECT ${opts.columns.join(',')} FROM ${TableMapping[tableName]} `;
             else
                 queryString = `SELECT * FROM ${TableMapping[tableName]} `;

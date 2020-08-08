@@ -1,13 +1,25 @@
-import React, { SyntheticEvent, useState, useRef } from 'react';
-import QuestionForm from '../components/QuestionForm';
-import { ChoiceItem, BookItem, QuestionItem } from '../common/types';
-import './AddBook.css';
-import AlertBanner, {AlertBannerType} from '../components/AlertBanner';
+import React, { useState, useRef, useEffect, SyntheticEvent } from 'react';
+import { RouteComponentProps } from 'react-router-dom';
+import { QuestionItem, BookItem, ChoiceItem } from '../common/types';
+import BookForm, { BookFormAction } from '../components/BookForm';
 import { API_HOST } from '../common/constants';
-import BookForm, {BookFormAction} from '../components/BookForm';
+import './AddBook.css';
+import QuestionForm from '../components/QuestionForm';
+import AlertBanner, { AlertBannerType } from '../components/AlertBanner';
 
-export default function AddBook() {
+interface EditBookProps extends RouteComponentProps {
+    id: number;
+}
+
+export default function EditBook(props: EditBookProps) {
+    const {
+        id
+    } = props;
+
+    const bookId = id || (props.match.params as any).id;
+
     const [book, setBook] = useState<BookItem>({
+        id: 0,
         title: '',
         fiction: '',
         year: '',
@@ -69,34 +81,6 @@ export default function AddBook() {
         setBook(newBook);
     }
 
-    async function onSubmit(e: SyntheticEvent) {
-        const questionData = [];
-        const questionKeys = Array.from(questions.keys());
-
-        for(const k of questionKeys) {
-            questionData.push({
-                content: questions.get(k)?.content,
-                choices: Array.from(questions.get(k)?.choices.values() || [])
-            })
-        }
-
-        const data = {
-            book,
-            questions: questionData
-        };
-
-        setBannerVisible(true);
-
-        const jsonResponse = await fetch(`${API_HOST}/admin/quiz/import`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(data)
-        });
-
-        await jsonResponse.json();
-    }
 
     function onAddChoice(e: SyntheticEvent) {
         const questionKey = (e.target as HTMLButtonElement).dataset['questionkey']?.toString() || '';
@@ -111,6 +95,8 @@ export default function AddBook() {
         
         const maxChoiceKey = (Array.from(existingQuestion.choices.keys()).length).toString();
         const currQuestion = {
+            id: existingQuestion.id,
+            delete: existingQuestion.delete,
             content: existingQuestion.content,
             choices: new Map(existingQuestion.choices)
         };
@@ -129,7 +115,7 @@ export default function AddBook() {
     function onDeleteChoice(e: SyntheticEvent) {        
         const questionKey = (e.target as HTMLButtonElement).dataset['questionkey']?.toString() || '';
         const choiceKey = (e.target as HTMLButtonElement).dataset['choicekey']?.toString() || '-1';
-    
+        
         if(questionKey === '' || choiceKey === '-1')
             return;
 
@@ -138,15 +124,22 @@ export default function AddBook() {
         if(!existingQuestion)
             return;
         
-        existingQuestion.choices.delete(choiceKey);
+        const newChoice = {...existingQuestion.choices.get(choiceKey)} as ChoiceItem;
+        newChoice.delete = true;
+
+        const newChoiceMap = new Map(existingQuestion.choices);
+        newChoiceMap.set(choiceKey, newChoice);
 
         const currQuestion = {
+            id: existingQuestion.id,
+            delete: existingQuestion.delete,
             content: existingQuestion.content,
-            choices: new Map(existingQuestion.choices)
+            choices: newChoiceMap
         };
 
         const newQuestions = new Map(questions);
         newQuestions.set(questionKey, currQuestion);
+
         setQuestions(newQuestions);
     }
 
@@ -169,6 +162,8 @@ export default function AddBook() {
             return;
 
         const newChoice: ChoiceItem = {
+            id: currChoice.id,
+            delete: currChoice.delete,
             content: field.value,
             answer: currChoice.answer
         };
@@ -205,6 +200,8 @@ export default function AddBook() {
             return;
 
         const newChoice: ChoiceItem = {
+            id: currChoice.id,
+            delete: currChoice.delete,
             content: currChoice.content,
             answer: selectedItem.value.toString()
         };
@@ -227,6 +224,8 @@ export default function AddBook() {
             return;
 
         const currQuestion = {
+            id: existingQuestion.id,
+            delete: existingQuestion.delete,
             content: value,
             choices: new Map(existingQuestion.choices)
         };
@@ -256,23 +255,111 @@ export default function AddBook() {
 
         if(questionKey === '')
             return;
+
+        const newQuestion = {...questions.get(questionKey)} as QuestionItem;
+        newQuestion.delete = true;
         
         const newQuestions = new Map(questions);
-        newQuestions.delete(questionKey);
+        newQuestions.set(questionKey, newQuestion);
         setQuestions(newQuestions);
     }
 
+    async function onSubmit(e: SyntheticEvent) {
+        const questionData = [];
+        const questionKeys = Array.from(questions.keys());
+
+        for(const k of questionKeys) {
+            questionData.push({
+                id: questions.get(k)?.id,
+                delete: questions.get(k)?.delete,
+                content: questions.get(k)?.content,
+                choices: Array.from(questions.get(k)?.choices.values() || [])
+            })
+        }
+
+        const data = {
+            book,
+            questions: questionData
+        };
+
+        setBannerVisible(true);
+
+        const jsonResponse = await fetch(`${API_HOST}/admin/quiz/import`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data)
+        });
+
+        await jsonResponse.json();
+    }
+
+    useEffect(() => {
+        const fetchedBook = async () => {
+            const data = await (await fetch(`${API_HOST}/admin/quiz/book/${bookId}`)).json();
+            const book = data.book;
+
+            setBook({
+                id: parseInt(book.id),
+                title: book.title,
+                fiction: book.fiction ? 'true' : 'false',
+                year: book.year,
+                author: book.author,
+                publisher: book.publisher,
+                genre: book.genre,
+                isbn: book.isbn,
+                lexile: book.lexile,
+                wordCount: book.wordCount
+            });
+
+            const questions = data.questions;
+
+            const newQuestions = new Map();
+            for(const q of questions) {
+                const newQuestion = {
+                    id: q.id,
+                    content: q.content,
+                    choices: new Map()
+                };
+
+                let choiceKey = 0;
+                for(const c of q.choices) {
+                    newQuestion.choices.set(choiceKey.toString(), {
+                        id: c.id,
+                        content: c.content,
+                        answer: c.answer
+                    });
+
+                    choiceKey++;
+                }
+
+                newQuestions.set(questionId.current.toString(), newQuestion);
+                questionId.current++;
+            }
+
+            setQuestions(newQuestions);
+        };
+
+        fetchedBook();
+    }, []);
+
     return (
-        <div className="container add-book-container">
-            <BookForm book={book} onBookChange={onBookChange} formAction={BookFormAction.Add} />
+        <div className="add-book-container container">
+            <div className="row">
+                <BookForm book={book} onBookChange={onBookChange} formAction={BookFormAction.Edit} />
+            </div>
             <hr/>
             <div className="row">
                 <div className="col col-md">
                     <button type="button" className="btn btn-secondary" onClick={onAddQuestion}>Add Question</button>
                 </div>
                 {
-                    Array.from(questions.keys()).map(k =>
-                        <QuestionForm
+                    Array.from(questions.keys()).map(k => {
+                        if (questions.get(k)?.delete)
+                            return undefined;
+
+                        return <QuestionForm   
                             key={k}
                             onChoiceFieldChange={onChoiceFieldChange}
                             onChoiceSelectChange={onChoiceSelectChange}
@@ -283,7 +370,8 @@ export default function AddBook() {
                             onChange={onChangeQuestion}
                             content={questions.get(k)?.content || ''}
                             choices={questions.get(k)?.choices || new Map()}
-                        />)
+                        />
+                    })
                 }
             </div>
             <div className="row">
@@ -298,4 +386,5 @@ export default function AddBook() {
             </div>
         </div>
     );
-}
+};
+

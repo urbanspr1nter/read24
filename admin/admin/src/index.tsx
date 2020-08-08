@@ -8,6 +8,7 @@ import AddBook from './pages/AddBook';
 import Navigation from './components/Navigation';
 import {BrowserRouter as Router, Route, Switch} from 'react-router-dom';
 import ListBooks from './pages/ListBooks';
+import EditBook from './pages/EditBook';
 
 ReactDOM.render(
   <React.StrictMode>
@@ -29,6 +30,7 @@ ReactDOM.render(
             <Route path="/book/list">
               <ListBooks />
             </Route>
+            <Route path="/book/edit/:id" component={EditBook} />
           </Switch>
         </div>
       </div>

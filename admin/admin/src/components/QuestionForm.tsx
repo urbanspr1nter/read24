@@ -33,7 +33,7 @@ export default function QuestionForm(props: QuestionFormProps) {
     for(const k of Array.from(choices.keys())) {
         const c = choices.get(k);
 
-        if (!c)
+        if (!c || c.delete)
             continue;
 
         choiceElements.push(

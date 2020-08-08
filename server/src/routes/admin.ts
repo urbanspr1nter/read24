@@ -158,7 +158,7 @@ export function mountAdmin(app: IRouter) {
         b.wordCount = parseInt(book.wordCount);
 
         await b.update();
-
+        
         for(const q of questions) {
             const bookId = b.id;
             const content = q.content;
@@ -170,7 +170,10 @@ export function mountAdmin(app: IRouter) {
                 question = await new Question().load(questionId);
                 question.content = content;
 
-                await question.update();
+                if(q.delete)
+                    await question.delete()
+                else
+                    await question.update();
             } else {
                 question = await new Question({
                     bookId,
@@ -189,7 +192,10 @@ export function mountAdmin(app: IRouter) {
                     choice.content = content;
                     choice.answer = answer;
 
-                    await choice.update();
+                    if (q.delete || c.delete)
+                        await choice.delete();
+                    else
+                        await choice.update();
                 } else {
                     choice = await new Choice({
                         questionId: question.id,

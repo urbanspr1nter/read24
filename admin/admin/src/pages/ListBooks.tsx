@@ -3,6 +3,7 @@ import TextField from '../components/TextField';
 import SelectBox from '../components/SelectBox';
 import './ListBooks.css';
 import { API_HOST } from '../common/constants';
+import { Link } from 'react-router-dom';
 
 enum SearchBy {
     Title = 'TITLE',
@@ -123,7 +124,9 @@ export default function ListBooks() {
                                         <td>{b.year}</td>
                                         <td>{b.lexile}</td>
                                         <td>{b.totalQuestions}</td>
-                                        <td><button type="button" className="btn btn-primary">Edit</button></td>
+                                        <td>
+                                            <Link to={`/book/edit/${b.id}`} className="btn btn-primary">Edit</Link>
+                                        </td>
                                     </tr>
                                 )
                             }
