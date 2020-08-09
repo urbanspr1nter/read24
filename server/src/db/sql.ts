@@ -125,7 +125,9 @@ export class _MySqlDb extends DbConnector {
                 queryString += ' AND dateDeleted = 0 ';
 
             if (opts && opts.filters && opts.filters.length > 0) {
-                const filters = opts.filters.map(f => `${f.column} = ${f.value}`).join(' AND ');
+                const filters = opts.filters
+                    .map(f => `${f.column} = ${!Number.isFinite(f.value) ? '\'' + f.value + '\'' : f.value}`)
+                    .join(' AND ');
                 queryString += ` AND ${filters}`;
             }
 
@@ -141,16 +143,19 @@ export class _MySqlDb extends DbConnector {
             if (opts && opts.limit && isValue(opts.offset))
                 queryString += ` LIMIT ${opts.offset}, ${opts.limit}`;
 
-            const query = connection.query(queryString, (err, results) => {
+            console.log('SELECT query', queryString);
+            connection.query(queryString, (err, results) => {
                 if (err)
                     return reject(err);
 
-                console.log(query.sql);
                 console.log('SELECT results', results);
 
                 const resultRows = results.map(r => Object.assign({}, r));
 
-                return resolve(resultRows.filter(whereFunc) as DataRow[]);
+                if (whereFunc)
+                    return resolve(resultRows.filter(whereFunc) as DataRow[]);
+                else
+                    return resolve(resultRows);
             });
         });
 

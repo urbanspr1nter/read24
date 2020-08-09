@@ -5,6 +5,7 @@ import { Question } from "../models/question";
 import { Choice } from "../models/choice";
 import { hashPassword, errorStatusToHttpCode } from "../util/util";
 import { User } from "../models/user";
+import { Classroom } from "../models/classroom";
 
 export function mountAdmin(app: IRouter) {
     /**
@@ -268,5 +269,114 @@ export function mountAdmin(app: IRouter) {
          } catch (e) {
             return res.status(errorStatusToHttpCode(e.status)).json(e);
          }
+     });
+
+     /**
+      * Admin Classroom routes
+      */
+     const DEFAULT_LIMIT = 2;
+
+     app.get('/admin/classroom/all/page/:page', async (req, res) => {
+        let page = 1;
+        if (req.params.page)
+            page = parseInt(req.params.page);
+
+        if (page === 0)
+            return res.status(400).json({message: 'Invalid page number'});
+
+        const offset = (page - 1) * DEFAULT_LIMIT;
+
+        const pages = Math.ceil(await Classroom.numberOfPages()) / DEFAULT_LIMIT;
+        const results = await Classroom.listClassrooms(offset, DEFAULT_LIMIT);
+
+        if (results.length === 0)
+            return res.status(200).json({
+                classrooms: [],
+                _meta: {
+                    hasMore: false,
+                    pages: 0
+                }
+            });
+
+        const lastClassromName = await Classroom.lastClassroomName();
+        const hasMore = !!!results.find(r => r.name === lastClassromName);
+        
+        return res.status(200).json({
+            classrooms: results.map(r => r.json()),
+            _meta: {
+                hasMore,
+                pages,
+                nextPage: hasMore ? page + 1 : undefined
+            }
+        });
+     });
+
+     app.get('/admin/classroom/:classroomId', async (req, res) => {
+         const classroomId = parseInt(req.params.classroomId);
+
+         if (!Number.isFinite(classroomId))
+            return res.status(400).json({message: 'Invalid classroom ID'});
+
+        const classroom = await new Classroom().load(classroomId);
+
+        return res.status(200).json({
+            id: classroom.id,
+            name: classroom.name,
+            slug: classroom.slug
+        });
+     });
+
+     app.post('/admin/classroom', async (req, res) => {
+         const name = req.body.name;
+         const slug = req.body.slug;
+
+         if (await Classroom.findBySlugIgnoreNotFound(slug))
+            return res.status(400).json({message: 'Slug already exists'});
+
+        const newClassroom = await new Classroom({
+            name,
+            slug
+        }).insert();
+
+        return res.status(200).json({id: newClassroom.id});
+     });
+
+     app.put('/admin/classroom', async (req, res) => {
+         const id = parseInt(req.body.id);
+
+         if (!Number.isFinite(id))
+            return res.status(400).json({message: 'Invalid classroom ID'});
+
+        const name = req.body.name;
+        const slug = req.body.slug;
+
+        const classroom = await Classroom.findBySlugIgnoreNotFound(slug);
+        if (classroom && classroom.id !== id)
+            return res.status(400).json({message: 'Invalid slug. Another classroom has already taken this'});
+
+        classroom.name = name;
+        classroom.slug = slug;
+        classroom.update();
+
+        return res.status(200).json({
+            id: classroom.id,
+            slug: classroom.slug,
+            name: classroom.name
+        });
+     });
+
+     app.delete('/admin/classroom/:classroomId', async (req, res) => {
+         const id = parseInt(req.params.classroomId);
+
+         if (!Number.isFinite(id))
+            return res.status(400).json({message: 'Invalid classroom ID'});
+
+        const classroom = await new Classroom().load(id);
+        classroom.delete();
+
+        return res.status(200).json({
+            id: classroom.id,
+            dateDeleted: new Date(classroom.dateDeleted)
+        });
      });
 }
