@@ -1,10 +1,10 @@
 import React, { SyntheticEvent, useState, useRef } from 'react';
-import QuestionForm from '../components/QuestionForm';
-import { ChoiceItem, BookItem, QuestionItem } from '../common/types';
+import QuestionForm from '../../components/QuestionForm';
+import { ChoiceItem, BookItem, QuestionItem } from '../../common/types';
 import './AddBook.css';
-import AlertBanner, {AlertBannerType} from '../components/AlertBanner';
-import { API_HOST } from '../common/constants';
-import BookForm, {BookFormAction} from '../components/BookForm';
+import AlertBanner, {AlertBannerType} from '../../components/AlertBanner';
+import { API_HOST } from '../../common/constants';
+import BookForm, {BookFormAction} from '../../components/BookForm';
 
 export default function AddBook() {
     const [book, setBook] = useState<BookItem>({

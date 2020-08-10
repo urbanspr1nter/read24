@@ -1,9 +1,10 @@
 import React, { useState, useEffect, SyntheticEvent } from 'react';
-import TextField from '../components/TextField';
-import SelectBox from '../components/SelectBox';
+import TextField from '../../components/TextField';
+import SelectBox from '../../components/SelectBox';
 import './ListBooks.css';
-import { API_HOST } from '../common/constants';
+import { API_HOST } from '../../common/constants';
 import { Link } from 'react-router-dom';
+import PaginationBar from '../../components/PaginationBar';
 
 enum SearchBy {
     Title = 'TITLE',
@@ -62,31 +63,6 @@ export default function ListBooks() {
         setSearchQuery(query);
     }
 
-    function createPageLinks() {
-        const pageLinks = [];
-
-        if (page - 1 >= 1)
-            pageLinks.push(<button className='page-nav-link'
-                key={'arrow-back'}
-                onClick={() => setPage(page - 1)}
-            >{'<<'}</button>);
-    
-        for(let i = 1; i <= totalPages; i++) {
-            pageLinks.push(<button className={`page-nav-link ${i === page ? 'active' : undefined}`}
-                key={i} 
-                onClick={() => setPage(i)}
-            >{i}</button>);
-        }
-    
-        if(page + 1 <= totalPages)
-            pageLinks.push(<button className='page-nav-link'
-                key={'arrow-next'}
-                onClick={() => setPage(page + 1)}
-            >{'>>'}</button>)
-    
-        return pageLinks;
-    }
-
     return (
         <div className="list-books container">
             <div className="row">
@@ -134,13 +110,7 @@ export default function ListBooks() {
                     </table>
                 </div>
             </div>
-            <div className="row justify-content-center">
-                <div className="col col-4">
-                    {
-                        createPageLinks()
-                    }
-                </div>
-            </div>
+            <PaginationBar totalPages={totalPages} currentPage={page} onClick={setPage} />
             <div className="row">
                 <div className="col col-12">
                     <em>Result Information</em>

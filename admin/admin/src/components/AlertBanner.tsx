@@ -1,7 +1,8 @@
 import React from 'react';
 
 export enum AlertBannerType {
-    Success = 0
+    Success = 1,
+    Error = 2
 };
 
 interface AlertBannerProps {
@@ -14,6 +15,8 @@ function getAlertBannerClassName(type: AlertBannerType) {
     switch(type) {
         case AlertBannerType.Success:
             return "alert-success";
+        case AlertBannerType.Error:
+            return "alert-danger";
         default:
             return "alert-primary";
     }

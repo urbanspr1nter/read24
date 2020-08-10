@@ -3,12 +3,15 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
 import * as serviceWorker from './serviceWorker';
-import Home from './pages/Home';
-import AddBook from './pages/AddBook';
+import Home from './pages/Home/Home';
+import AddBook from './pages/AddBook/AddBook';
 import Navigation from './components/Navigation';
 import {BrowserRouter as Router, Route, Switch} from 'react-router-dom';
-import ListBooks from './pages/ListBooks';
-import EditBook from './pages/EditBook';
+import ListBooks from './pages/ListBooks/ListBooks';
+import EditBook from './pages/EditBook/EditBook';
+import AddClassroom from './pages/AddClassroom/AddClassroom';
+import ListClassrooms from './pages/ListClassrooms/ListClassrooms';
+import EditClassroom from './pages/EditClassroom/EditClassroom';
 
 ReactDOM.render(
   <React.StrictMode>
@@ -31,6 +34,13 @@ ReactDOM.render(
               <ListBooks />
             </Route>
             <Route path="/book/edit/:id" component={EditBook} />
+            <Route path="/classroom/add">
+              <AddClassroom />
+            </Route>
+            <Route path="/classroom/list">
+              <ListClassrooms />
+            </Route>
+            <Route path="/classroom/edit/:id" component={EditClassroom} />
           </Switch>
         </div>
       </div>

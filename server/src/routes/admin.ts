@@ -350,9 +350,13 @@ export function mountAdmin(app: IRouter) {
         const name = req.body.name;
         const slug = req.body.slug;
 
-        const classroom = await Classroom.findBySlugIgnoreNotFound(slug);
+        let classroom = await Classroom.findBySlugIgnoreNotFound(slug);
         if (classroom && classroom.id !== id)
             return res.status(400).json({message: 'Invalid slug. Another classroom has already taken this'});
+        
+        // Slug has changed
+        if (!classroom)
+            classroom = await new Classroom().load(id);
 
         classroom.name = name;
         classroom.slug = slug;

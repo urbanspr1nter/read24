@@ -1,8 +1,4 @@
-.list-books table {
-    margin-top: 16px;
-}
-
-.list-books .page-nav-link {
+.pagination-bar .page-nav-link {
     font-size: large;
     margin: 8px;
     box-shadow: none;
@@ -11,11 +7,11 @@
     color: #007bff;
 }
 
-.list-books .page-nav-link:hover {
+.pagination-bar .page-nav-link:hover {
     text-decoration: underline;
 }
 
-.list-books .page-nav-link.active {
+.pagination-bar .page-nav-link.active {
     font-size: large;
     font-weight: bold;
 }

@@ -1,11 +1,11 @@
 import React, { useState, useRef, useEffect, SyntheticEvent } from 'react';
 import { RouteComponentProps } from 'react-router-dom';
-import { QuestionItem, BookItem, ChoiceItem } from '../common/types';
-import BookForm, { BookFormAction } from '../components/BookForm';
-import { API_HOST } from '../common/constants';
-import './AddBook.css';
-import QuestionForm from '../components/QuestionForm';
-import AlertBanner, { AlertBannerType } from '../components/AlertBanner';
+import { QuestionItem, BookItem, ChoiceItem } from '../../common/types';
+import BookForm, { BookFormAction } from '../../components/BookForm';
+import { API_HOST } from '../../common/constants';
+import '../AddBook/AddBook.css';
+import QuestionForm from '../../components/QuestionForm';
+import AlertBanner, { AlertBannerType } from '../../components/AlertBanner';
 
 interface EditBookProps extends RouteComponentProps {
     id: number;
