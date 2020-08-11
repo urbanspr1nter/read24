@@ -1,8 +1,9 @@
 import * as mysql from 'mysql';
 import { DbConnector } from './db_connector';
 import { DataRow } from './types';
-import { SelectOptions } from './connector';
+import { SelectOptions, DeleteOptions } from './connector';
 import { isValue } from '../util/util';
+import { TableMapping } from './tables';
 
 const connection = mysql.createConnection({
     host: 'localhost',
@@ -11,21 +12,6 @@ const connection = mysql.createConnection({
     database: 'read24_dev',
     insecureAuth: true
 });
-
-const TableMapping = {
-    books: 'books',
-    choices: 'choices',
-    classrooms: 'classrooms',
-    questions: 'questions',
-    quizQuestions: 'quiz_questions',
-    quizTokens: 'quiz_tokens',
-    ratings: 'ratings',
-    students: 'students',
-    studentAnswers: 'student_answers',
-    teachers: 'teachers',
-    teacherClassrooms: 'teacher_classrooms',
-    users: 'users'
-};
 
 connection.connect();
 
@@ -69,7 +55,10 @@ export class _MySqlDb extends DbConnector {
         const list = this._buildList(data);
         const values = [];
         for(const col in data) {
-            values.push(data[col.toString()]);
+            if (typeof data[col.toString()] === 'boolean')
+                values.push(data[col.toString()].toString() === 'true' ? 1 : 0);
+            else
+                values.push(data[col.toString()]);
         }
 
         const formatted = mysql.format(`UPDATE ${TableMapping[tableName]} SET ${list} WHERE id = ${data.id}`, values);
@@ -102,7 +91,7 @@ export class _MySqlDb extends DbConnector {
                 ]
             };
 
-            return this.select(tableName, (o: DataRow) => o.id === id, opts)
+            return this.select(tableName, opts)
                 .then(results => results.length === 0 ? reject(null) : resolve(results[0]))
                 .catch(e => reject(e));
         });
@@ -110,7 +99,7 @@ export class _MySqlDb extends DbConnector {
         return promise;
     }
 
-    public select(tableName: string, whereFunc?: (o: DataRow) => boolean, opts?: SelectOptions): Promise<DataRow[]> {
+    public select(tableName: string, opts: SelectOptions): Promise<DataRow[]> {
         const promise = new Promise<DataRow[]>((resolve, reject) => {
             let queryString = '';
 
@@ -126,14 +115,14 @@ export class _MySqlDb extends DbConnector {
 
             if (opts && opts.filters && opts.filters.length > 0) {
                 const filters = opts.filters
-                    .map(f => `${f.column} = ${!Number.isFinite(f.value) ? '\'' + f.value + '\'' : f.value}`)
+                    .map(f => `${f.column} = ${connection.escape(f.value)}`)
                     .join(' AND ');
                 queryString += ` AND ${filters}`;
             }
 
             if (opts && opts.fullTextMatch && opts.fullTextMatch.length > 0) {
                 const matchers = opts.fullTextMatch.map(f => 
-                    ` MATCH(${f.columns.join(', ')}) AGAINST ('+"${f.value}"' IN BOOLEAN MODE) `).join(' AND ');
+                    ` MATCH(${f.columns.join(', ')}) AGAINST (${connection.escape('+"' + f.value + '"')} IN BOOLEAN MODE) `).join(' AND ');
                 queryString += ` AND ${matchers}`;
             }
 
@@ -152,32 +141,37 @@ export class _MySqlDb extends DbConnector {
 
                 const resultRows = results.map(r => Object.assign({}, r));
 
-                if (whereFunc)
-                    return resolve(resultRows.filter(whereFunc) as DataRow[]);
-                else
-                    return resolve(resultRows);
+                return resolve(resultRows);
             });
         });
 
         return promise;
     }
 
-    public delete(tableName: string, whereFunc: (o: DataRow) => boolean): Promise<number> {
+    public delete(tableName: string, opts: DeleteOptions): Promise<number> {
         const promise = new Promise<number>(async (resolve, reject) => {
-            const selected = await this.select(tableName, whereFunc);
-
-            if (selected.length === 0)
+            // There needs to be some filtering
+            if (opts.filters.length === 0 && !opts.in && !isValue(opts.in.column) && !isValue(opts.in.value))
                 return resolve(0);
 
-            const ids = selected.map((r: DataRow) => r.id);
-            const idGroup = `(${ids.join(', ')})`;
+            let queryString = `DELETE FROM ${TableMapping[tableName]} WHERE `;
+            for(const f of opts.filters)
+                queryString += ` ${f.column} = ${connection.escape(f.value)}`;
+            
+            if (opts.in) {
+                const list = [];
+                for(const l of opts.in.value)
+                    list.push(connection.escape(l));
 
-            const query = connection.query(`DELETE FROM ${TableMapping[tableName]} WHERE id IN ${idGroup}`, (err, results) => {
+                queryString += `${opts.in.column} IN (${list.join(',')})`;
+            }
+
+
+            const query = connection.query(queryString, (err, results) => {
                 if (err)
                     return reject(err);
 
                 console.log(query.sql);
-                console.log(`DELETED IDS: ${idGroup} FROM ${tableName}`);
 
                 return resolve(results.affectedRows);
             });

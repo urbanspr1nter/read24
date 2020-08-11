@@ -24,7 +24,7 @@ export class Question
     }
 
     public static async totalQuestionsForBookId(bookId: number) {
-        const data = await DatabaseConnector.select('questions', () => true, {
+        const data = await DatabaseConnector.select('questions', {
             columns: ['count(id)'],
             filters: [{
                 column: 'bookId',
@@ -36,7 +36,14 @@ export class Question
     }
 
     public static async listByBookId(bookId: number): Promise<Question[]> {
-        const data = await DatabaseConnector.select('questions', (q: QuestionType) => q.bookId === bookId) as QuestionType[];
+        const data = await DatabaseConnector.select('questions', {
+            filters: [
+                {
+                    column: 'bookId',
+                    value: bookId
+                }
+            ]
+        }) as QuestionType[];
 
         const result: Question[] = [];
 

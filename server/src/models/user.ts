@@ -27,7 +27,14 @@ export class User
     }
 
     public static async findByUsername(username: string) {
-        const userType = (await DatabaseConnector.select('users', (u: UserType) => u.username === username))[0];
+        const userType = (await DatabaseConnector.select('users', {
+            filters: [
+                {
+                    column: 'username',
+                    value: username
+                }
+            ]
+        }))[0];
     
         return await new User().load(userType.id);
     }

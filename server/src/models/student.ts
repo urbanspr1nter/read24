@@ -36,13 +36,27 @@ export class Student
     }
 
     public static async findByUserId(userId: number) {
-        const studentType = (await DatabaseConnector.select('students', s => (s as StudentType).userId === userId))[0];
+        const studentType = (await DatabaseConnector.select('students', {
+            filters: [
+                {
+                    column: 'userId',
+                    value: userId
+                }
+            ]
+        }))[0];
 
         return await new Student().load(studentType.id);
     }
 
     public static async listByClassroomId(classroomId: number) {
-        const studentTypes = await DatabaseConnector.select('students', (s: StudentType) => s.classroomId === classroomId) as StudentType[];
+        const studentTypes = await DatabaseConnector.select('students', {
+            filters: [
+                {
+                    column: 'classroomId',
+                    value: classroomId
+                }
+            ]
+        }) as StudentType[];
 
         return await Promise.all(studentTypes.map(async s => await new Student().load(s.id)));
     }

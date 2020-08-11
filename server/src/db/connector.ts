@@ -8,6 +8,8 @@ console.log('Using the MySQL database connector.');
 
 export interface DeleteOptions {
     hardDelete: boolean;
+    filters: FilterOption[];
+    in?: InOption;
 }
 
 export interface OrderByOptions {
@@ -17,7 +19,12 @@ export interface OrderByOptions {
 
 export interface FilterOption {
     column: string;
-    value: string;
+    value: string|number;
+}
+
+export interface InOption {
+    column: string;
+    value: string[]|number[];
 }
 
 export interface FullTextMatchOption {
@@ -33,4 +40,5 @@ export interface SelectOptions {
     columns?: string[];
     filters?: FilterOption[];
     fullTextMatch?: FullTextMatchOption[];
+    in?: InOption;
 }

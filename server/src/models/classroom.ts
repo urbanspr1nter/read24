@@ -24,7 +24,7 @@ export class Classroom
     }
 
     static async numberOfPages() {
-        const count = await DatabaseConnector.select('classrooms', undefined, {
+        const count = await DatabaseConnector.select('classrooms', {
             columns: ['count(id)']
         });
 
@@ -32,7 +32,7 @@ export class Classroom
     }
 
     static async lastClassroomName() {
-        const classroom = await DatabaseConnector.select('classrooms', undefined, {
+        const classroom = await DatabaseConnector.select('classrooms', {
             orderBy: {
                 column: 'name',
                 ascending: false
@@ -44,7 +44,7 @@ export class Classroom
     }
 
     static async listClassrooms(offset: number, limit: number) {
-        const classrooms = await DatabaseConnector.select('classrooms', undefined, {
+        const classrooms = await DatabaseConnector.select('classrooms', {
             limit,
             offset,
             orderBy: {
@@ -57,7 +57,7 @@ export class Classroom
     }
 
     static async findBySlugIgnoreNotFound(slug: string): Promise<Classroom> {
-        const classroom = await DatabaseConnector.select('classrooms', undefined, {
+        const classroom = await DatabaseConnector.select('classrooms', {
             filters: [{column: 'slug', value: slug}]
         });
 

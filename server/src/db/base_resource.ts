@@ -69,7 +69,13 @@ export abstract class BaseResource implements DataType {
         console.log(`Resource delete. opts: ${opts}, id: ${this.id}`);
 
         if (opts && opts.hardDelete)
-            await DatabaseConnector.delete(this._tableName, (o: DataRow) => o.id === this.id);
+            await DatabaseConnector.delete(this._tableName, {
+                hardDelete: opts && opts.hardDelete,
+                filters: [{
+                    column: 'id',
+                    value: this.id
+                }]
+            });
         else
             await DatabaseConnector.update(this._tableName, toSave);
 

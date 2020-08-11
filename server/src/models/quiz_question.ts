@@ -25,7 +25,14 @@ export class QuizQuestion
 
     public static async listByQuizToken(quizToken: string) {
         const quizQuestionTypes = await DatabaseConnector
-            .select('quizQuestions', (o: QuizQuestionType) => o.quizToken === quizToken) as QuizQuestionType[];
+            .select('quizQuestions', {
+                filters: [
+                    {
+                        column: 'quizToken',
+                        value: quizToken
+                    }
+                ]
+            }) as QuizQuestionType[];
 
         return quizQuestionTypes.map(qqt => new QuizQuestion().load(qqt.id));
     }

@@ -27,7 +27,14 @@ export class Choice
     }
 
     public static async listByQuestionId(questionId: number): Promise<Choice[]> {
-        const choiceIds = (await DatabaseConnector.select('choices', (c: ChoiceType) => c.questionId === questionId)).map((c: ChoiceType) => c.id);
+        const choiceIds = (await DatabaseConnector.select('choices', {
+            filters: [
+                {
+                    column: 'questionId',
+                    value: questionId
+                }
+            ]
+        })).map((c: ChoiceType) => c.id);
 
         const choices = [];
         for(const id of choiceIds) {

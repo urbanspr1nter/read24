@@ -31,7 +31,14 @@ export class StudentAnswer
 
     public static async listByQuizToken(quizToken: string) {
         const studentAnswerTypes = await DatabaseConnector
-            .select('studentAnswers', (o: StudentAnswerType) => o.quizToken === quizToken) as StudentAnswerType[];
+            .select('studentAnswers', {
+                filters: [
+                    {
+                        column: 'quizToken',
+                        value: quizToken
+                    }
+                ]
+            }) as StudentAnswerType[];
 
         return studentAnswerTypes.map(t => new StudentAnswer().load(t.id));
     }

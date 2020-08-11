@@ -45,14 +45,14 @@ export class Book
     }
 
     public static async numberOfPages() {
-        const results = await DatabaseConnector.select('books', () => true, {
+        const results = await DatabaseConnector.select('books', {
             columns: ['count(id)']
         });
 
         return results[0]['count(id)'];
     }
     public static async lastBookTitle() {
-        const results = await DatabaseConnector.select('books', () => true, {
+        const results = await DatabaseConnector.select('books', {
             limit: 1,
             orderBy: {
                 ascending: false,
@@ -64,7 +64,7 @@ export class Book
     }
 
     public static async listAllBooks(offset: number, limit: number) {
-        const books = await DatabaseConnector.select('books', () => true, {
+        const books = await DatabaseConnector.select('books', {
             limit,
             offset,
             orderBy: {
@@ -77,7 +77,7 @@ export class Book
     }
 
     public static async numberOfPagesByRelevantTitle(title: string) {
-        const results = await DatabaseConnector.select('books', () => true, {
+        const results = await DatabaseConnector.select('books', {
             fullTextMatch: [
                 {
                     columns: ['title'],
@@ -91,7 +91,7 @@ export class Book
     }
 
     public static async lastBookTitleByRelevantTitle(title: string) {
-        const books = await DatabaseConnector.select('books', () => true, {
+        const books = await DatabaseConnector.select('books', {
             limit: 1,
             orderBy: {
                 column: 'title',
@@ -109,7 +109,7 @@ export class Book
     }
 
     public static async listAllBooksByRelevantTitles(offset: number, limit: number, title: string) {
-        const books = await DatabaseConnector.select('books', () => true, {
+        const books = await DatabaseConnector.select('books', {
             offset,
             limit,
             orderBy: {
@@ -128,7 +128,7 @@ export class Book
     }
 
     public static async numberOfPagesByRelevantAuthor(author: string) {
-        const results = await DatabaseConnector.select('books', () => true, {
+        const results = await DatabaseConnector.select('books', {
             fullTextMatch: [
                 {
                     columns: ['author'],
@@ -142,7 +142,7 @@ export class Book
     }
 
     public static async lastBookTitleByRelevantAuthor(author: string) {
-        const books = await DatabaseConnector.select('books', () => true, {
+        const books = await DatabaseConnector.select('books', {
             limit: 1,
             orderBy: {
                 column: 'author',
@@ -160,7 +160,7 @@ export class Book
     }
 
     public static async listAllBooksByRelevantAuthor(offset: number, limit: number, author: string) {
-        const books = await DatabaseConnector.select('books', () => true, {
+        const books = await DatabaseConnector.select('books', {
             offset,
             limit,
             orderBy: {

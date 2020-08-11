@@ -30,14 +30,27 @@ export class QuizToken
     }
 
     public static async findByToken(token: string) {
-        const id = (await DatabaseConnector.select('quizTokens', (o: QuizTokenType) => o.token === token))[0].id;
+        const id = (await DatabaseConnector.select('quizTokens', {
+            filters: [
+                {
+                    column: 'token',
+                    value: token
+                }
+            ]
+        }))[0].id;
 
         return await new QuizToken().load(id);
     }
 
     public static async listByStudentId(studentId: number) {
-        const ids = (await DatabaseConnector.select('quizTokens', (o: QuizTokenType) => o.studentId === studentId))
-            .map(q => q.id);
+        const ids = (await DatabaseConnector.select('quizTokens', {
+            filters: [
+                {
+                    column: 'studentId',
+                    value: studentId
+                }
+            ]
+        })).map(q => q.id);
 
         return ids.map(id => new QuizToken().load(id));
     }
