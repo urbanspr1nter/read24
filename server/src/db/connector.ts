@@ -1,18 +1,17 @@
 import { DbConnector } from "./db_connector";
 import { MySqlDb } from "./sql";
+import { MemoryDb } from "./memory";
 
 export let DatabaseConnector: DbConnector = null;
 
-DatabaseConnector = MySqlDb;
-console.log('Using the MySQL database connector.');
+if (process.env.DATA_SOURCE === 'mysql')
+    DatabaseConnector = MySqlDb;
+else 
+    DatabaseConnector = MemoryDb;
 
-export interface DeleteOptions {
-    hardDelete: boolean;
-    filters: FilterOption[];
-    in?: InOption;
-}
+console.log(`Using the ${process.env.DATA_SOURCE === 'mysql' ? 'MySQL' : 'Memory'} database connector.`);
 
-export interface OrderByOptions {
+export interface OrderByOption {
     column: string;
     ascending: boolean;
 }
@@ -32,13 +31,30 @@ export interface FullTextMatchOption {
     value: string
 }
 
-export interface SelectOptions {
+export enum AggregateType {
+    Count = 'COUNT'
+}
+
+export interface AggregateOption {
+    type: AggregateType;
+    column: string;
+    alias: string;
+}
+
+export interface SelectOption {
     includeDeleted?: boolean;
-    orderBy?: OrderByOptions;
+    orderBy?: OrderByOption;
     offset?: number;
     limit?: number;
     columns?: string[];
     filters?: FilterOption[];
     fullTextMatch?: FullTextMatchOption[];
+    in?: InOption;
+    aggregate?: AggregateOption;
+}
+
+export interface DeleteOption {
+    hardDelete: boolean;
+    filters: FilterOption[];
     in?: InOption;
 }

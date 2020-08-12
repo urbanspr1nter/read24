@@ -1,5 +1,5 @@
 import { DataType, DataRow } from "./types";
-import { DatabaseConnector, DeleteOptions } from "./connector";
+import { DatabaseConnector, DeleteOption } from "./connector";
 
 export abstract class BaseResource implements DataType {
     public id: number;
@@ -58,7 +58,7 @@ export abstract class BaseResource implements DataType {
         return this;
     }
 
-    public async delete(opts?: DeleteOptions) {
+    public async delete(opts?: DeleteOption) {
         if (this.id === 0)
             return this;
 

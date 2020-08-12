@@ -1,5 +1,5 @@
 import { DataType } from "../db/types";
-import { DatabaseConnector } from "../db/connector";
+import { DatabaseConnector, AggregateType } from "../db/connector";
 import { BaseResource } from "../db/base_resource";
 
 export interface BookType extends DataType {
@@ -46,7 +46,11 @@ export class Book
 
     public static async numberOfPages() {
         const results = await DatabaseConnector.select('books', {
-            columns: ['count(id)']
+            aggregate: {
+                type: AggregateType.Count,
+                column: 'id',
+                alias: 'count(id)'
+            }
         });
 
         return results[0]['count(id)'];
@@ -84,7 +88,11 @@ export class Book
                     value: title
                 },
             ],
-            columns: ['count(id)']
+            aggregate: {
+                type: AggregateType.Count,
+                column: 'id',
+                alias: 'count(id)'
+            }
         });
 
         return results[0]['count(id)'];
@@ -135,7 +143,11 @@ export class Book
                     value: author
                 },
             ],
-            columns: ['count(id)']
+            aggregate: {
+                type: AggregateType.Count,
+                column: 'id',
+                alias: 'count(id)'
+            }
         });
 
         return results[0]['count(id)'];

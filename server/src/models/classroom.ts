@@ -1,6 +1,6 @@
 import { DataType } from "../db/types";
 import { BaseResource } from "../db/base_resource";
-import { DatabaseConnector } from "../db/connector";
+import { DatabaseConnector, AggregateType } from "../db/connector";
 
 export interface ClassroomType extends DataType {
     name: string;
@@ -25,7 +25,11 @@ export class Classroom
 
     static async numberOfPages() {
         const count = await DatabaseConnector.select('classrooms', {
-            columns: ['count(id)']
+            aggregate: {
+                type: AggregateType.Count,
+                column: 'id',
+                alias: 'count(id)'
+            }
         });
 
         return count[0]['count(id)'];

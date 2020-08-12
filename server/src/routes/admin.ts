@@ -286,7 +286,7 @@ export function mountAdmin(app: IRouter) {
 
         const offset = (page - 1) * DEFAULT_LIMIT;
 
-        const pages = Math.ceil(await Classroom.numberOfPages()) / DEFAULT_LIMIT;
+        const pages = Math.ceil(await Classroom.numberOfPages() / DEFAULT_LIMIT);
         const results = await Classroom.listClassrooms(offset, DEFAULT_LIMIT);
 
         if (results.length === 0)

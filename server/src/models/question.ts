@@ -1,5 +1,5 @@
 import { DataType } from "../db/types";
-import { DatabaseConnector } from "../db/connector";
+import { DatabaseConnector, AggregateType } from "../db/connector";
 import { BaseResource } from "../db/base_resource";
 
 export interface QuestionType extends DataType {
@@ -25,11 +25,15 @@ export class Question
 
     public static async totalQuestionsForBookId(bookId: number) {
         const data = await DatabaseConnector.select('questions', {
-            columns: ['count(id)'],
             filters: [{
                 column: 'bookId',
-                value: String(bookId)
-            }]
+                value: bookId
+            }],
+            aggregate: {
+                type: AggregateType.Count,
+                column: 'id',
+                alias: 'count(id)'
+            }
         });
 
         return data[0]['count(id)'];

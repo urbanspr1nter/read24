@@ -1,0 +1,182 @@
+{
+    "books": {
+        "lastId": 3,
+        "data": [
+            {
+                "dateCreated": 1597232128572,
+                "dateUpdated": 0,
+                "dateDeleted": 0,
+                "title": "Where the Red Fern Grows",
+                "fiction": 1,
+                "author": "Wilson Rawls",
+                "year": "1974",
+                "publisher": "Bantam Books",
+                "genre": 0,
+                "isbn": "978-0-553-12338-8",
+                "lexile": 700,
+                "wordCount": 75528,
+                "id": 1
+            },
+            {
+                "dateCreated": 1597232728942,
+                "dateUpdated": 1597233027782,
+                "dateDeleted": 0,
+                "title": "Esperanza Rising",
+                "fiction": 1,
+                "author": "Pam Munoz Ryan",
+                "year": "2000",
+                "publisher": "Scholastic, Inc",
+                "genre": 0,
+                "isbn": "0-439-12041-1",
+                "lexile": 750,
+                "wordCount": 41905,
+                "id": 2
+            },
+            {
+                "dateCreated": 1597233229147,
+                "dateUpdated": 0,
+                "dateDeleted": 0,
+                "title": "Clifford the Big Red Dog",
+                "fiction": 1,
+                "author": "Norman Bridwell",
+                "year": "1985",
+                "publisher": "Scholastic, Inc",
+                "genre": 1,
+                "isbn": "0-590-44297-X",
+                "lexile": 370,
+                "wordCount": 236,
+                "id": 3
+            }
+        ]
+    },
+    "choices": {
+        "lastId": 3,
+        "data": [
+            {
+                "dateCreated": 1597233027783,
+                "dateUpdated": 0,
+                "dateDeleted": 0,
+                "questionId": 1,
+                "content": "This is a choice",
+                "answer": 1,
+                "id": 1
+            },
+            {
+                "dateCreated": 1597233027783,
+                "dateUpdated": 0,
+                "dateDeleted": 0,
+                "questionId": 1,
+                "content": "This is a second choice",
+                "answer": 0,
+                "id": 2
+            },
+            {
+                "dateCreated": 1597233027783,
+                "dateUpdated": 0,
+                "dateDeleted": 0,
+                "questionId": 2,
+                "content": "This is an only choice.",
+                "answer": 1,
+                "id": 3
+            }
+        ]
+    },
+    "classrooms": {
+        "lastId": 5,
+        "data": [
+            {
+                "dateCreated": 1597188381389,
+                "dateUpdated": 1597200578339,
+                "dateDeleted": 0,
+                "name": "Room 4",
+                "slug": "room4",
+                "id": 1
+            },
+            {
+                "dateCreated": 1597188494595,
+                "dateUpdated": 1597200569003,
+                "dateDeleted": 0,
+                "name": "Room 2",
+                "slug": "room2",
+                "id": 2
+            },
+            {
+                "dateCreated": 1597197765008,
+                "dateUpdated": 1597200561026,
+                "dateDeleted": 0,
+                "name": "Room 10",
+                "slug": "room10",
+                "id": 3
+            },
+            {
+                "dateCreated": 1597197774694,
+                "dateUpdated": 1597200551369,
+                "dateDeleted": 0,
+                "name": "Room 1",
+                "slug": "room1",
+                "id": 4
+            },
+            {
+                "dateCreated": 1597197796687,
+                "dateUpdated": 1597200589522,
+                "dateDeleted": 0,
+                "name": "Room 5",
+                "slug": "room5",
+                "id": 5
+            }
+        ]
+    },
+    "questions": {
+        "lastId": 2,
+        "data": [
+            {
+                "dateCreated": 1597233027782,
+                "dateUpdated": 0,
+                "dateDeleted": 0,
+                "bookId": 2,
+                "content": "This is the first qeustion",
+                "id": 1
+            },
+            {
+                "dateCreated": 1597233027783,
+                "dateUpdated": 0,
+                "dateDeleted": 0,
+                "bookId": 2,
+                "content": "This is a second question",
+                "id": 2
+            }
+        ]
+    },
+    "quiz_questions": {
+        "lastId": 0,
+        "data": []
+    },
+    "quiz_tokens": {
+        "lastId": 0,
+        "data": []
+    },
+    "ratings": {
+        "lastId": 0,
+        "data": []
+    },
+    "students": {
+        "lastId": 0,
+        "data": []
+    },
+    "student_answers": {
+        "lastId": 0,
+        "data": []
+    },
+    "teachers": {
+        "lastId": 0,
+        "data": []
+    },
+    "teacher_classrooms": {
+        "lastId": 0,
+        "data": []
+    },
+    "users": {
+        "lastId": 0,
+        "data": []
+    }
+}

@@ -1,7 +1,7 @@
 import * as mysql from 'mysql';
 import { DbConnector } from './db_connector';
 import { DataRow } from './types';
-import { SelectOptions, DeleteOptions } from './connector';
+import { SelectOption, DeleteOption, AggregateType } from './connector';
 import { isValue } from '../util/util';
 import { TableMapping } from './tables';
 
@@ -15,7 +15,7 @@ const connection = mysql.createConnection({
 
 connection.connect();
 
-export class _MySqlDb extends DbConnector {
+class _MySqlDb extends DbConnector {
     private _buildList(data: DataRow) {
         const columns = [];
         for(const col in data) {
@@ -81,7 +81,7 @@ export class _MySqlDb extends DbConnector {
 
     public find(tableName: string, id: number): Promise<DataRow> {
         const promise = new Promise<DataRow>((resolve, reject) => {
-            const opts: SelectOptions = {
+            const opts: SelectOption = {
                 includeDeleted: false,
                 filters: [
                     {
@@ -99,14 +99,24 @@ export class _MySqlDb extends DbConnector {
         return promise;
     }
 
-    public select(tableName: string, opts: SelectOptions): Promise<DataRow[]> {
+    public select(tableName: string, opts: SelectOption): Promise<DataRow[]> {
         const promise = new Promise<DataRow[]>((resolve, reject) => {
-            let queryString = '';
+            let queryString = 'SELECT ';
 
-            if (opts && opts.columns && opts.columns.length > 0)
-                queryString = `SELECT ${opts.columns.join(',')} FROM ${TableMapping[tableName]} `;
-            else
-                queryString = `SELECT * FROM ${TableMapping[tableName]} `;
+            if (opts.aggregate && (opts.columns && opts.columns.length > 0))
+                return reject('Can only select with either columns, or aggregrate function, but not both.');
+
+            if (opts.columns && opts.columns.length > 0)
+                queryString += `${opts.columns.join(',')} `;
+            else if ((!opts.columns || opts.columns.length === 0) && !opts.aggregate)
+                queryString += `* `;
+            else if (opts.aggregate && (!opts.columns || opts.columns.length === 0)) {
+                // Currently only support aggregate when no columns are provided for selection
+                if (opts.aggregate.type === AggregateType.Count)
+                    queryString += `count(${opts.aggregate.column}) as ${connection.escape(opts.aggregate.alias)}`;
+            }
+
+            queryString += `FROM ${TableMapping[tableName]}`;
 
             queryString += ' WHERE 1=1 '
             // By default, do not include rows where deletedAt is set. This is a virtual deletion.
@@ -129,8 +139,8 @@ export class _MySqlDb extends DbConnector {
             if (opts && opts.orderBy)
                 queryString += ` ORDER BY ${opts.orderBy.column} ${opts.orderBy.ascending ? 'ASC': 'DESC'}`;
             
-            if (opts && opts.limit && isValue(opts.offset))
-                queryString += ` LIMIT ${opts.offset}, ${opts.limit}`;
+            if (opts && opts.limit)
+                queryString += ` LIMIT ${opts.offset ? opts.offset : '0'}, ${opts.limit}`;
 
             console.log('SELECT query', queryString);
             connection.query(queryString, (err, results) => {
@@ -148,7 +158,7 @@ export class _MySqlDb extends DbConnector {
         return promise;
     }
 
-    public delete(tableName: string, opts: DeleteOptions): Promise<number> {
+    public delete(tableName: string, opts: DeleteOption): Promise<number> {
         const promise = new Promise<number>(async (resolve, reject) => {
             // There needs to be some filtering
             if (opts.filters.length === 0 && !opts.in && !isValue(opts.in.column) && !isValue(opts.in.value))
