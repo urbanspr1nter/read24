@@ -13,9 +13,7 @@ const connection = mysql.createConnection({
     insecureAuth: true
 });
 
-connection.connect();
-
-class _MySqlDb extends DbConnector {
+export class MySqlDb extends DbConnector {
     private _buildList(data: DataRow) {
         const columns = [];
         for(const col in data) {
@@ -24,6 +22,19 @@ class _MySqlDb extends DbConnector {
         const list = columns.join(", ");
 
         return list;
+    }
+
+    constructor() {
+        super();
+        connection.connect();
+    }
+
+    public dump() {
+        return;
+    }
+
+    public initialize(db: any) {
+        return;
     }
 
     public insert(tableName: string, data: DataRow): Promise<number> {
@@ -198,5 +209,3 @@ process.on("SIGINT", () => {
             ? process.exit(1) 
             : process.exit());
 });
-
-export const MySqlDb = new _MySqlDb();

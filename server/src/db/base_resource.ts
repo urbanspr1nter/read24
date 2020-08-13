@@ -66,8 +66,6 @@ export abstract class BaseResource implements DataType {
 
         const toSave = this.serializeForDb();
 
-        console.log(`Resource delete. opts: ${opts}, id: ${this.id}`);
-
         if (opts && opts.hardDelete)
             await DatabaseConnector.delete(this._tableName, {
                 hardDelete: opts && opts.hardDelete,
@@ -90,8 +88,6 @@ export abstract class BaseResource implements DataType {
 
             result[prop.toString()] = this[prop];
         }
-
-        console.log(`Serialized for DB`, result);
 
         return result;
     }

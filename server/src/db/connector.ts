@@ -1,15 +1,18 @@
-import { DbConnector } from "./db_connector";
-import { MySqlDb } from "./sql";
-import { MemoryDb } from "./memory";
+import * as RuntimeConfig from '../config';
+const Config = RuntimeConfig.default;
 
-export let DatabaseConnector: DbConnector = null;
+import { MemoryDb } from './memory';
+import { MySqlDb } from './sql';
+import { DbConnector } from './db_connector';
 
-if (process.env.DATA_SOURCE === 'mysql')
-    DatabaseConnector = MySqlDb;
-else 
-    DatabaseConnector = MemoryDb;
-
-console.log(`Using the ${process.env.DATA_SOURCE === 'mysql' ? 'MySQL' : 'Memory'} database connector.`);
+if(!(global as any).DatabaseConnector) {
+    if(Config.data_source === 'memory') {
+        (global as any).DatabaseConnector = new MemoryDb();
+    } else {
+        (global as any).DatabaseConnector = new MySqlDb();
+    }
+} 
+export const DatabaseConnector = (global as any).DatabaseConnector as DbConnector;
 
 export interface OrderByOption {
     column: string;

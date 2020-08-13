@@ -6,7 +6,8 @@
   "scripts": {
     "build": "tsc",
     "start": "npm run build && node dist/index.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "jest --detectOpenHandles --runInBand --coverage --reporters=\"default\"",
+    "build:test": "npm run build && npm run test"
   },
   "keywords": [
     "read24",
@@ -20,15 +21,25 @@
     "dotenv": "^8.2.0",
     "express": "^4.17.1",
     "mysql": "^2.18.1",
-    "uuid": "^8.2.0"
+    "uuid": "^8.2.0",
+    "yargs": "^15.4.1"
   },
   "devDependencies": {
     "@types/bcrypt": "^3.0.0",
     "@types/cors": "^2.8.6",
     "@types/dotenv": "^8.2.0",
     "@types/express": "^4.17.6",
+    "@types/jest": "^26.0.9",
     "@types/mysql": "^2.15.14",
     "@types/uuid": "^8.0.0",
+    "@types/yargs": "^15.0.5",
+    "jest": "^26.3.0",
+    "ts-jest": "^26.2.0",
     "typescript": "^3.9.6"
+  },
+  "jest": {
+    "preset": "ts-jest",
+    "setupFiles": ["./src/setupTests.ts"],
+    "testPathIgnorePatterns": ["./node_modules/", "./dist/"]
   }
 }

@@ -4,7 +4,7 @@ import { SelectOption, DeleteOption, AggregateType } from "./connector";
 import { TableMapping } from "./tables";
 import { isValue } from "../util/util";
 
-class _MemoryDb extends DbConnector {
+export class MemoryDb extends DbConnector {
     private _db = {};
 
     constructor() {
@@ -52,8 +52,10 @@ class _MemoryDb extends DbConnector {
         }
 
         const ref = this._db[TableMapping[tableName]].data.find(r => r.id === toUpdate.id);
-        for(const k in ref)
-            ref[k] = toUpdate[k];
+        for(const k in ref) {
+            if(toUpdate[k] !== undefined)
+                ref[k] = toUpdate[k];
+        }
 
         return Promise.resolve(1);
     }
@@ -68,22 +70,22 @@ class _MemoryDb extends DbConnector {
         const allData = [];
         
         if(!opts.includeDeleted)
-            allData.push(...this._db[TableMapping[tableName]].data);
-        else
             allData.push(...this._db[TableMapping[tableName]].data.filter(r => r.dateDeleted === 0));
+        else
+            allData.push(...this._db[TableMapping[tableName]].data);
 
         let filteredData = [];
         if (opts.filters) {
             const result = [...allData].filter(r => {
                 let condition = undefined;
                 opts.filters.forEach(filter => {
-                    condition = !condition
+                    condition = condition === undefined
                         ? (r[filter.column] === filter.value) 
                         : condition && (r[filter.column] === filter.value);
 
                     return filter;
                 });
-
+                return condition;
             });
 
             filteredData = [...result]
@@ -116,12 +118,19 @@ class _MemoryDb extends DbConnector {
                         return b - a;
                 } else {
                     if (opts.orderBy.ascending)
-                        if (a <= b)
+                        if (a < b)
                             return -1;
-                        else
+                        else if (a === b)
                             return 0;
+                        else
+                            return 1;
                     else
-                        return 1;
+                        if (b < a)
+                            return -1;
+                        else if (a === b)
+                            return 0;
+                        else
+                            return 1; 
                 }
             })
         }
@@ -163,7 +172,7 @@ class _MemoryDb extends DbConnector {
 
     public delete(tableName: string, opts: DeleteOption): Promise<number> {
         // There needs to be some filtering
-        if (opts.filters.length === 0 && !opts.in && !isValue(opts.in.column) && !isValue(opts.in.value))
+        if (opts.filters.length === 0 && !opts.in)
             return Promise.resolve(0);
 
         const combined = [];
@@ -173,22 +182,24 @@ class _MemoryDb extends DbConnector {
             const deletedFilteredEntries = [...allData].filter(r => {
                 let condition = undefined;
                 opts.filters.forEach(filter => {
-                    condition = !condition
+                    condition = condition === undefined
                         ? (r[filter.column] === filter.value) 
                         : condition && (r[filter.column] === filter.value);
 
                     return filter;
                 });
+
+                return condition;
             });
 
             combined.push(...deletedFilteredEntries);
         }
     
         if (opts.in) {
-            let deletedInEntries = [...allData];
-            for (const v of opts.in.value) {
-                deletedInEntries = deletedInEntries.filter(r => r[opts.in.column] === v);
-            }
+            let deletedInEntries = [...allData].filter(r => {
+                const val = r[opts.in.column];
+                return (opts.in.value as any[]).includes(val)
+            });
             
             combined.push(...deletedInEntries);
         }
@@ -198,5 +209,3 @@ class _MemoryDb extends DbConnector {
         return Promise.resolve(Array.from((new Set(combined)).values()).length);
     }
 }
-
-export const MemoryDb = new _MemoryDb();
