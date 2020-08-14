@@ -2,7 +2,6 @@ import { DbConnector } from "./db_connector";
 import { DataRow } from "./types";
 import { SelectOption, DeleteOption, AggregateType } from "./connector";
 import { TableMapping } from "./tables";
-import { isValue } from "../util/util";
 
 export class MemoryDb extends DbConnector {
     private _db = {};

@@ -1,6 +1,7 @@
+import {DatabaseConnector} from '../config';
 import { DataType } from "../db/types";
 import { BaseResource } from "../db/base_resource";
-import { DatabaseConnector, AggregateType } from "../db/connector";
+import { AggregateType } from "../db/connector";
 
 export interface ClassroomType extends DataType {
     name: string;

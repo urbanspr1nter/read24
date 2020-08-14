@@ -1,5 +1,4 @@
-import * as RuntimeConfig from './config';
-const Config = RuntimeConfig.default;
+import {Config} from './config';
 
 Config.data_source = 'memory';
 Config.environment = 'test';

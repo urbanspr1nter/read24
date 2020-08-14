@@ -1,5 +1,5 @@
+import {DatabaseConnector} from '../config';
 import { DataType } from "../db/types";
-import { DatabaseConnector } from "../db/connector";
 import { BaseResource } from "../db/base_resource";
 
 export interface ChoiceType extends DataType {

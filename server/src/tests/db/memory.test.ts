@@ -1,4 +1,5 @@
-import { DatabaseConnector, AggregateType } from "../../db/connector";
+import {DatabaseConnector} from '../../config';
+import { AggregateType } from "../../db/connector";
 import { Classroom } from "../../models/classroom";
 import { Book } from "../../models/book";
 

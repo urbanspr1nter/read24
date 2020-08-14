@@ -1,6 +1,7 @@
+import {DatabaseConnector} from '../config';
 import { DataType } from "../db/types";
-import { DatabaseConnector } from "../db/connector";
 import { BaseResource } from "../db/base_resource";
+import { hashPassword } from "../util/util";
 
 export interface UserType extends DataType {
     username: string;
@@ -37,5 +38,19 @@ export class User
         }))[0];
     
         return await new User().load(userType.id);
+    }
+
+    public static async create(username: string, plainTextPassword: string) {
+        const hashed = hashPassword(plainTextPassword);
+
+        const user = new User({
+            username,
+            password: hashed.hashed,
+            salt: hashed.salt
+        });
+        
+        await user.insert();
+
+        return user;
     }
 }

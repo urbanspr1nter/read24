@@ -1,6 +1,4 @@
-import * as RuntimeConfig from './config';
-const Config = RuntimeConfig.default;
-
+import {Config, DatabaseConnector} from './config';
 import * as fs from 'fs';
 import * as express from 'express';
 import * as bodyParser from 'body-parser';
@@ -10,7 +8,6 @@ import { mountStudent } from './routes/student';
 import { mountLogin } from './routes/login';
 import { mountAdmin } from './routes/admin';
 import * as cors from 'cors';
-import { DatabaseConnector } from './db/connector';
 
 const app = express();
 

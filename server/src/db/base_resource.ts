@@ -1,5 +1,6 @@
+import {DatabaseConnector} from '../config';
 import { DataType, DataRow } from "./types";
-import { DatabaseConnector, DeleteOption } from "./connector";
+import { DeleteOption } from "./connector";
 
 export abstract class BaseResource implements DataType {
     public id: number;

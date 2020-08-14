@@ -30,7 +30,7 @@ export class MySqlDb extends DbConnector {
     }
 
     public dump() {
-        return;
+        return null;
     }
 
     public initialize(db: any) {

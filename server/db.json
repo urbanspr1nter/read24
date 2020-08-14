@@ -168,15 +168,36 @@
         "data": []
     },
     "teachers": {
-        "lastId": 0,
-        "data": []
+        "lastId": 1,
+        "data": [
+            {
+                "dateCreated": 1597407941681,
+                "dateUpdated": 0,
+                "dateDeleted": 0,
+                "firstName": "Roger",
+                "middleName": "",
+                "lastName": "Ngo",
+                "userId": 1,
+                "id": 1
+            }
+        ]
     },
     "teacher_classrooms": {
         "lastId": 0,
         "data": []
     },
     "users": {
-        "lastId": 0,
-        "data": []
+        "lastId": 1,
+        "data": [
+            {
+                "dateCreated": 1597406744409,
+                "dateUpdated": 0,
+                "dateDeleted": 0,
+                "username": "roger",
+                "password": "$2b$07$Sp1j/tBitLw76GnDdnrHiOgk2cKcWVBZcpvT0aO5tbcTY.sbKriBu",
+                "salt": "$2b$07$Sp1j/tBitLw76GnDdnrHiO",
+                "id": 1
+            }
+        ]
     }
 }

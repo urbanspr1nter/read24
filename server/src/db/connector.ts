@@ -1,19 +1,3 @@
-import * as RuntimeConfig from '../config';
-const Config = RuntimeConfig.default;
-
-import { MemoryDb } from './memory';
-import { MySqlDb } from './sql';
-import { DbConnector } from './db_connector';
-
-if(!(global as any).DatabaseConnector) {
-    if(Config.data_source === 'memory') {
-        (global as any).DatabaseConnector = new MemoryDb();
-    } else {
-        (global as any).DatabaseConnector = new MySqlDb();
-    }
-} 
-export const DatabaseConnector = (global as any).DatabaseConnector as DbConnector;
-
 export interface OrderByOption {
     column: string;
     ascending: boolean;
