@@ -131,23 +131,28 @@ export class MySqlDb extends DbConnector {
 
             queryString += ' WHERE 1=1 '
             // By default, do not include rows where deletedAt is set. This is a virtual deletion.
-            if (!opts || !opts.includeDeleted)
+            if (!opts.includeDeleted)
                 queryString += ' AND dateDeleted = 0 ';
 
-            if (opts && opts.filters && opts.filters.length > 0) {
+            if (opts.filters && opts.filters.length > 0) {
                 const filters = opts.filters
                     .map(f => `${f.column} = ${connection.escape(f.value)}`)
                     .join(' AND ');
                 queryString += ` AND ${filters}`;
             }
 
-            if (opts && opts.fullTextMatch && opts.fullTextMatch.length > 0) {
+            if (opts.fullTextMatch && opts.fullTextMatch.length > 0) {
                 const matchers = opts.fullTextMatch.map(f => 
                     ` MATCH(${f.columns.join(', ')}) AGAINST (${connection.escape('+"' + f.value + '"')} IN BOOLEAN MODE) `).join(' AND ');
                 queryString += ` AND ${matchers}`;
             }
 
-            if (opts && opts.orderBy)
+            if (opts.in) {
+                const valuesList = (opts.in.value as any[]).map(v => connection.escape(v)).join(', ');
+                queryString += ` AND ${opts.in.column} ${opts.in.not ? 'NOT IN' : 'IN'} (${valuesList})`;
+            }
+
+            if (opts.orderBy)
                 queryString += ` ORDER BY ${opts.orderBy.column} ${opts.orderBy.ascending ? 'ASC': 'DESC'}`;
             
             if (opts && opts.limit)
@@ -184,7 +189,7 @@ export class MySqlDb extends DbConnector {
                 for(const l of opts.in.value)
                     list.push(connection.escape(l));
 
-                queryString += `${opts.in.column} IN (${list.join(',')})`;
+                queryString += `${opts.in.column} ${opts.in.not ? 'NOT IN' : 'IN'} (${list.join(',')})`;
             }
 
 

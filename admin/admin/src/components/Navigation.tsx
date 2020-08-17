@@ -14,6 +14,9 @@ export default function Navigation() {
                     <Link to="/book/list" className="nav-item nav-link">List Books</Link>
                     <Link to="/classroom/add" className="nav-item nav-link">Add Classroom</Link>
                     <Link to="/classroom/list" className="nav-item nav-link">List Classrooms</Link>
+                    <Link to="/user/add" className="nav-item nav-link">Add User</Link>
+                    <Link to="/teacher/add" className="nav-item nav-link">Add Teacher</Link>
+                    <Link to="/teacher/list" className="nav-item nav-link">List Teachers</Link>
                 </div>
             </nav>
         </div>

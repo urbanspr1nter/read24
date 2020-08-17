@@ -7,6 +7,7 @@ import { hashPassword, errorStatusToHttpCode } from "../util/util";
 import { User } from "../models/user";
 import { Classroom } from "../models/classroom";
 import { Teacher } from "../models/teacher";
+import { TeacherClassroom } from "../models/teacher_classroom";
 
 export function mountAdmin(app: IRouter) {
     /**
@@ -319,17 +320,23 @@ export function mountAdmin(app: IRouter) {
             return res.status(400).json({message: 'Invalid classroom ID'});
 
         const classroom = await new Classroom().load(classroomId);
+        const teacher = await TeacherClassroom.findTeacherByClassroomId(classroom.id);
 
         return res.status(200).json({
             id: classroom.id,
             name: classroom.name,
-            slug: classroom.slug
+            slug: classroom.slug,
+            teacherId: teacher ? teacher.id : 0
         });
      });
 
      app.post('/admin/classroom', async (req, res) => {
          const name = req.body.name;
          const slug = req.body.slug;
+         const teacherId = parseInt(req.body.teacherId);
+
+         if (!Number.isFinite(teacherId))
+            return res.status(400).json({status: 'bad_request', message: 'Must provide a number for the teacher ID'});
 
          if (await Classroom.findBySlugIgnoreNotFound(slug))
             return res.status(400).json({message: 'Slug already exists'});
@@ -337,6 +344,11 @@ export function mountAdmin(app: IRouter) {
         const newClassroom = await new Classroom({
             name,
             slug
+        }).insert();
+
+        await new TeacherClassroom({
+            teacherId,
+            classroomId: newClassroom.id
         }).insert();
 
         return res.status(200).json({id: newClassroom.id});
@@ -350,6 +362,10 @@ export function mountAdmin(app: IRouter) {
 
         const name = req.body.name;
         const slug = req.body.slug;
+        const teacherId = parseInt(req.body.teacherId);
+
+        if (!Number.isFinite(teacherId))
+            return res.status(400).json({status: 'bad_request', message: 'Must provide a number for the teacher ID'});
 
         let classroom = await Classroom.findBySlugIgnoreNotFound(slug);
         if (classroom && classroom.id !== id)
@@ -362,6 +378,19 @@ export function mountAdmin(app: IRouter) {
         classroom.name = name;
         classroom.slug = slug;
         classroom.update();
+
+        const currentTeacher = await TeacherClassroom.findTeacherByClassroomId(classroom.id);
+        
+        if (!currentTeacher)
+            await new TeacherClassroom({
+                classroomId: classroom.id,
+                teacherId: teacherId
+            }).insert();
+        else {
+            const teacherClassroom = await TeacherClassroom.findByTeacherAndClassroomId(currentTeacher.id, classroom.id);
+            teacherClassroom.teacherId = teacherId;
+            teacherClassroom.update();
+        }
 
         return res.status(200).json({
             id: classroom.id,
@@ -379,6 +408,11 @@ export function mountAdmin(app: IRouter) {
         const classroom = await new Classroom().load(id);
         classroom.delete();
 
+        // Remove the association between the classroom, and teacher.
+        const teacher = await TeacherClassroom.findTeacherByClassroomId(classroom.id);
+        const teacherClassroom = await TeacherClassroom.findByTeacherAndClassroomId(teacher.id, classroom.id);
+        await teacherClassroom.delete();
+
         return res.status(200).json({
             id: classroom.id,
             dateDeleted: new Date(classroom.dateDeleted)
@@ -388,6 +422,15 @@ export function mountAdmin(app: IRouter) {
      /**
       * Admin User Routes
       */
+     app.get ('/admin/user/available', async (req, res) => {
+        const users = await User.listUsersWhoAreAvailable();
+
+        return res.status(200).json(users.map(u => ({
+            username: u.username,
+            id: u.id
+        })));
+    });
+
      app.post('/admin/user', async (req, res) => {
          const {
              username,
@@ -408,11 +451,11 @@ export function mountAdmin(app: IRouter) {
      /**
       * Admin Teacher Routes
       */
-     app.get('/admin/teacher/:teacherId', async (req, res) => {
-         const teacherId = parseInt(req.params.teacherId);
+    app.get('/admin/teacher/:teacherId', async (req, res) => {
+        const teacherId = parseInt(req.params.teacherId);
 
-         if(!Number.isFinite(teacherId))
-            return res.status(400).json({status: 'bad_request', message: 'Invalid teacherId supplied.'});
+        if(!Number.isFinite(teacherId))
+        return res.status(400).json({status: 'bad_request', message: 'Invalid teacherId supplied.'});
 
         const teacher = await new Teacher().load(teacherId);
 
@@ -423,9 +466,10 @@ export function mountAdmin(app: IRouter) {
 
         return res.status(200).json({
             username: user.username,
+            userId: user.id,
             ...teacher.json()
         });
-     });
+    });
 
      app.post('/admin/teacher', async (req, res) => {
         const {
@@ -480,7 +524,7 @@ export function mountAdmin(app: IRouter) {
          if(!Number.isFinite(uid) || !Number.isFinite(teacherId))
             return res.status(400).json({status: 'bad_request', message: 'Must provide a numeric ID for teacher and user'});
 
-        const teacher = await new Teacher().load(id);
+        const teacher = await new Teacher().load(teacherId);
 
         if (teacher.userId !== uid)
             return res.status(400).json({status: 'bad_request', message: 'User ID does not match what is stored.'});
@@ -497,6 +541,14 @@ export function mountAdmin(app: IRouter) {
           lastName: teacher.lastName  
         })
      });
+
+     app.get('/admin/teacher/list/all', async (req, res) => {
+        const teachers = await Teacher.listAllTeachersNoLimit();
+
+        return res.status(200).json({
+            teachers: teachers.map(t => t.json())
+        });
+    });
 
      app.delete('/admin/teacher/:teacherId', async (req, res) => {
          const {

@@ -73,9 +73,20 @@ export class MemoryDb extends DbConnector {
         else
             allData.push(...this._db[TableMapping[tableName]].data);
 
-        let filteredData = [];
+        let filteredData = [...allData];
+
+        // solve in-clause first
+        if (opts.in) {
+            filteredData = filteredData.filter(r => {
+                if (opts.in.not)
+                    return !((opts.in.value as any[]).includes(r[opts.in.column]));
+                else  
+                    return (opts.in.value as any[]).includes(r[opts.in.column]);
+            });
+        }
+
         if (opts.filters) {
-            const result = [...allData].filter(r => {
+            filteredData = filteredData.filter(r => {
                 let condition = undefined;
                 opts.filters.forEach(filter => {
                     condition = condition === undefined
@@ -86,12 +97,7 @@ export class MemoryDb extends DbConnector {
                 });
                 return condition;
             });
-
-            filteredData = [...result]
-        } else {
-            filteredData = [...allData];
         }
-
 
         if (opts.fullTextMatch && opts.fullTextMatch.length > 0) {
             for(const filter of opts.fullTextMatch) {
@@ -197,7 +203,9 @@ export class MemoryDb extends DbConnector {
         if (opts.in) {
             let deletedInEntries = [...allData].filter(r => {
                 const val = r[opts.in.column];
-                return (opts.in.value as any[]).includes(val)
+                return opts.in.not 
+                    ? !((opts.in.value as any).includes(val)) 
+                    : (opts.in.value as any[]).includes(val)
             });
             
             combined.push(...deletedInEntries);

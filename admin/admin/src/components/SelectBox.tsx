@@ -28,10 +28,10 @@ export default function SelectBox(props: SelectBoxProps) {
     return (
         <div className="form-group">
             <label htmlFor={id}>{label}</label>
-            <select id={id} className="form-control" onChange={onChange} defaultValue={selectedOption ? selectedOption.value : undefined}>
+            <select id={id} className="form-control" onChange={onChange} value={selectedOption ? selectedOption.value : undefined}>
                 {
                     options.map(o =>
-                        <option value={o.value} defaultValue={o.selected ? o.value : undefined} key={`option-${key++}`}>
+                        <option value={o.value} key={`option-${key++}`}>
                             {o.label}
                         </option>)
                 }

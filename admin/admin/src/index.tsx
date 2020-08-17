@@ -12,6 +12,10 @@ import EditBook from './pages/EditBook/EditBook';
 import AddClassroom from './pages/AddClassroom/AddClassroom';
 import ListClassrooms from './pages/ListClassrooms/ListClassrooms';
 import EditClassroom from './pages/EditClassroom/EditClassroom';
+import AddUser from './pages/AddUser/AddUser';
+import AddTeacher from './pages/AddTeacher/AddTeacher';
+import ListTeachers from './pages/ListTeachers/ListTeachers';
+import EditTeacher from './pages/EditTeacher/EditTeacher';
 
 ReactDOM.render(
   <React.StrictMode>
@@ -41,6 +45,16 @@ ReactDOM.render(
               <ListClassrooms />
             </Route>
             <Route path="/classroom/edit/:id" component={EditClassroom} />
+            <Route path="/user/add">
+              <AddUser />
+            </Route>
+            <Route path="/teacher/add">
+              <AddTeacher />
+            </Route>
+            <Route path="/teacher/list">
+              <ListTeachers />
+            </Route>
+            <Route path="/teacher/edit/:id" component={EditTeacher} />
           </Switch>
         </div>
       </div>

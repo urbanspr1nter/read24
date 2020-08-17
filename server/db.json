@@ -82,7 +82,7 @@
         ]
     },
     "classrooms": {
-        "lastId": 5,
+        "lastId": 6,
         "data": [
             {
                 "dateCreated": 1597188381389,
@@ -123,6 +123,14 @@
                 "name": "Room 5",
                 "slug": "room5",
                 "id": 5
+            },
+            {
+                "dateCreated": 1597607784353,
+                "dateUpdated": 0,
+                "dateDeleted": 0,
+                "name": "test",
+                "slug": "test",
+                "id": 6
             }
         ]
     },
@@ -168,7 +176,7 @@
         "data": []
     },
     "teachers": {
-        "lastId": 1,
+        "lastId": 3,
         "data": [
             {
                 "dateCreated": 1597407941681,
@@ -179,15 +187,44 @@
                 "lastName": "Ngo",
                 "userId": 1,
                 "id": 1
+            },
+            {
+                "dateCreated": 1597458883644,
+                "dateUpdated": 0,
+                "dateDeleted": 0,
+                "firstName": "Riley",
+                "middleName": "",
+                "lastName": "Ngo",
+                "userId": 2,
+                "id": 2
+            },
+            {
+                "dateCreated": 1597667012963,
+                "dateUpdated": 0,
+                "dateDeleted": 0,
+                "firstName": "Joe",
+                "middleName": "",
+                "lastName": "Teacher",
+                "userId": 3,
+                "id": 3
             }
         ]
     },
-    "teacher_classrooms": {
-        "lastId": 0,
-        "data": []
+    "teacher_classroom": {
+        "lastId": 1,
+        "data": [
+            {
+                "dateCreated": 1597607784353,
+                "dateUpdated": 0,
+                "dateDeleted": 0,
+                "teacherId": 2,
+                "classroomId": 6,
+                "id": 1
+            }
+        ]
     },
     "users": {
-        "lastId": 1,
+        "lastId": 3,
         "data": [
             {
                 "dateCreated": 1597406744409,
@@ -197,6 +234,24 @@
                 "password": "$2b$07$Sp1j/tBitLw76GnDdnrHiOgk2cKcWVBZcpvT0aO5tbcTY.sbKriBu",
                 "salt": "$2b$07$Sp1j/tBitLw76GnDdnrHiO",
                 "id": 1
+            },
+            {
+                "dateCreated": 1597456850038,
+                "dateUpdated": 0,
+                "dateDeleted": 0,
+                "username": "riley",
+                "password": "$2b$07$FzabDhva3X3VHyrthxKusO57OfmcP/CO.cM6K7.yS.KwgaLBICBky",
+                "salt": "$2b$07$FzabDhva3X3VHyrthxKusO",
+                "id": 2
+            },
+            {
+                "dateCreated": 1597666991807,
+                "dateUpdated": 0,
+                "dateDeleted": 0,
+                "username": "joe_teach",
+                "password": "$2b$07$Qey205fPOwKgsXcMq4PsJurDHNiyaVl/CI211gEqeHP8oY98mrZEu",
+                "salt": "$2b$07$Qey205fPOwKgsXcMq4PsJu",
+                "id": 3
             }
         ]
     }

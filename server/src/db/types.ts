@@ -7,6 +7,7 @@ import { RatingType } from "../models/rating";
 import { StudentType } from "../models/student";
 import { StudentAnswerType } from "../models/student_answer";
 import { UserType } from "../models/user";
+import { TeacherClassroomType } from "../models/teacher_classroom";
 
 export interface DataType {
     id: number;
@@ -24,5 +25,5 @@ export type DataRow = DataType &
     RatingType & 
     StudentType & 
     StudentAnswerType & 
-    UserType;
-    
+    UserType & 
+    TeacherClassroomType;

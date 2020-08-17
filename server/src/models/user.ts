@@ -2,6 +2,7 @@ import {DatabaseConnector} from '../config';
 import { DataType } from "../db/types";
 import { BaseResource } from "../db/base_resource";
 import { hashPassword } from "../util/util";
+import { Teacher } from './teacher';
 
 export interface UserType extends DataType {
     username: string;
@@ -28,7 +29,7 @@ export class User
     }
 
     public static async findByUsername(username: string) {
-        const userType = (await DatabaseConnector.select('users', {
+        const user = (await DatabaseConnector.select('users', {
             filters: [
                 {
                     column: 'username',
@@ -37,7 +38,10 @@ export class User
             ]
         }))[0];
     
-        return await new User().load(userType.id);
+        if (!user)
+            return undefined;
+        
+        return await new User().load(user.id);
     }
 
     public static async create(username: string, plainTextPassword: string) {
@@ -48,9 +52,22 @@ export class User
             password: hashed.hashed,
             salt: hashed.salt
         });
-        
-        await user.insert();
 
-        return user;
+        return await user.insert();
+    }
+
+    public static async listUsersWhoAreAvailable() {
+        const usersAssignedToTeachers = await Teacher.listAllUsersAsTeachers();
+
+        const unavailableIds = usersAssignedToTeachers.map(t => t.id);
+        const users = await DatabaseConnector.select('users', {
+            in: {
+                not: true,
+                column: 'id',
+                value: unavailableIds
+            }
+        });
+
+        return Promise.all(users.map(async u => await new User().load(u.id)));
     }
 }

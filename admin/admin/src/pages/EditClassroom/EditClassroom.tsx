@@ -3,6 +3,7 @@ import { RouteComponentProps } from 'react-router-dom';
 import { API_HOST } from '../../common/constants';
 import AlertBanner, { AlertBannerType } from '../../components/AlertBanner';
 import TextField from '../../components/TextField';
+import SelectBox from '../../components/SelectBox';
 
 interface EditClassroomProps extends RouteComponentProps {};
 
@@ -14,6 +15,9 @@ export default function EditClassroom(props: EditClassroomProps) {
         message: '',
         type: 0
     });
+    const [teachers, setTeachers] = useState([]);
+    const [teacherId, setTeacherId] = useState(0);
+    const [options, setOptions] = useState([] as any);
 
     useEffect(() => {
         setId((props.match.params as any).id);
@@ -24,14 +28,29 @@ export default function EditClassroom(props: EditClassroomProps) {
             return;
 
         const fetchedClassroom = async () => {
+            const teachers = await (await fetch(`${API_HOST}/admin/teacher/list/all`)).json();
             const data = await (await fetch(`${API_HOST}/admin/classroom/${id}`)).json();
             
             setName(data.name);
             setSlug(data.slug);
+            setTeacherId(data.teacherId);
+
+            if (teachers.teachers.length === 0)
+                setTeachers([]);
+            else
+                setTeachers(teachers.teachers);
         };
 
         fetchedClassroom();
     }, [id]);
+
+    useEffect(() => {
+        setOptions(teachers.map((t: any) => ({
+            label: `${t.firstName} ${t.lastName}`,
+            value: t.id,
+            selected: teacherId === t.id
+        })));
+    }, [teachers, teacherId]);
 
     function onNameChange(e: SyntheticEvent) {
         const value = e.target as HTMLInputElement;
@@ -51,7 +70,7 @@ export default function EditClassroom(props: EditClassroomProps) {
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({id, name, slug})
+            body: JSON.stringify({id, name, slug, teacherId})
         })).json();
 
         console.log(response);
@@ -69,6 +88,17 @@ export default function EditClassroom(props: EditClassroomProps) {
         } 
     }
 
+    function onTeacherChange(e: SyntheticEvent) {
+        const select = e.target as HTMLSelectElement;
+
+        const selected = select.options.item(select.selectedIndex);
+
+        if (!selected)
+            return;
+
+        setTeacherId(parseInt(selected.value));
+    }
+
     return (
         <div className="edit-classroom container">
             <div className="row">
@@ -84,6 +114,11 @@ export default function EditClassroom(props: EditClassroomProps) {
             <div className="row">
                 <div className="col col-6">
                     <TextField id="add-classroom-slug" label="Slug" value={slug} onChange={onSlugChange} />
+                </div>
+            </div>
+            <div className="row">
+                <div className="col col-6">
+                    <SelectBox id="add-classroom-teacher" label="Teacher" options={options} onChange={onTeacherChange} />
                 </div>
             </div>
             <div className="row">

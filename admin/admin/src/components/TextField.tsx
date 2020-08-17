@@ -6,8 +6,14 @@ interface TextFieldProps {
     placeholder?: string;
     value?: string;
     defaultValue?: string;
+    type?: TextFieldType;
     onChange?: (e: SyntheticEvent) => void;
 };
+
+export enum TextFieldType {
+    Text = "text",
+    Password = "password"
+}
 
 export default function TextField(props: TextFieldProps) {
     const {
@@ -16,6 +22,7 @@ export default function TextField(props: TextFieldProps) {
         placeholder,
         value,
         defaultValue,
+        type,
         onChange
     } = props;
 
@@ -23,7 +30,7 @@ export default function TextField(props: TextFieldProps) {
         <div className="form-group">
             <label htmlFor={id}>{label}</label>
             <input 
-                type="text"
+                type={type === TextFieldType.Password ? TextFieldType.Password : TextFieldType.Text}
                 className="form-control" 
                 id={id} 
                 placeholder={placeholder || undefined}

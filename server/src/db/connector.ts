@@ -11,6 +11,7 @@ export interface FilterOption {
 export interface InOption {
     column: string;
     value: string[]|number[];
+    not?: boolean;
 }
 
 export interface FullTextMatchOption {

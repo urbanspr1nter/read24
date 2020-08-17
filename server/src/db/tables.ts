@@ -9,6 +9,6 @@ export const TableMapping = {
     students: 'students',
     studentAnswers: 'student_answers',
     teachers: 'teachers',
-    teacherClassrooms: 'teacher_classrooms',
+    teacher_classroom: 'teacher_classroom',
     users: 'users'
 };

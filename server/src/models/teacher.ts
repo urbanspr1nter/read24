@@ -2,6 +2,7 @@ import { DataType } from "../db/types";
 import { BaseResource } from "../db/base_resource";
 import { DatabaseConnector } from "../config";
 import { AggregateType } from "../db/connector";
+import { User } from "./user";
 
 export interface TeacherType extends DataType {
     firstName: string;
@@ -50,6 +51,17 @@ export class Teacher extends BaseResource implements TeacherType {
         return Number(results[0]['count']);
     }
 
+    public static async listAllTeachersNoLimit() {
+        const results = await DatabaseConnector.select('teachers', {
+            orderBy: {
+                ascending: true,
+                column: 'firstName'
+            }
+        });
+
+        return await Promise.all(results.map(async t => await new Teacher().load(t.id)));
+    }
+
     public static async listAllTeachers(offset: number, limit: number) {
         const results = await DatabaseConnector.select('teachers', {
             limit,
@@ -73,5 +85,15 @@ export class Teacher extends BaseResource implements TeacherType {
         });
 
         return results[0].id;
+    }
+
+    public static async listAllUsersAsTeachers() {
+        const results = await DatabaseConnector.select('teachers', {
+            columns: ['id', 'userId']
+        });
+
+        const users = results.map(async r => await new User().load(r.userId));
+
+        return Promise.all(users);
     }
 }

@@ -457,4 +457,92 @@ describe('memory database tests', () => {
 
         expect(list).toHaveLength(0);
     });
+
+    it('should select by in', async () => {
+        const users = await DatabaseConnector.select('users', {
+            in: {
+                column: 'id',
+                value: [1, 2, 3]
+            }
+        });
+
+        expect(users).toHaveLength(3);
+        expect(users[0].username).toBe('User 0');
+        expect(users[1].username).toBe('User 1');
+        expect(users[2].username).toBe('User 2');
+    });
+
+    it('should select by not-in', async () => {
+        const users = await DatabaseConnector.select('users', {
+            in: {
+                column: 'id',
+                value: [1, 2, 3],
+                not: true
+            }
+        });
+
+        expect(users).toHaveLength(2);
+        expect(users[0].username).toBe('User 3');
+        expect(users[1].username).toBe('User 4');
+    });
+
+    it('should select by complex filtering (filter + in)', async () => {
+        const users = await DatabaseConnector.select('users', {
+            filters: [{
+                column: 'id',
+                value: 2
+            }],
+            in: {
+                column: 'id',
+                value: [2, 1]
+            }
+        });
+
+        expect(users).toHaveLength(1);
+        expect(users[0].username).toBe('User 1');
+    });
+
+    it('should select by complex filtering (filter + in) with no results', async () => {
+        const users = await DatabaseConnector.select('users', {
+            filters: [{
+                column: 'id',
+                value: 2
+            }],
+            in: {
+                column: 'id',
+                value: [1]
+            }
+        });
+
+        expect(users).toHaveLength(0);
+    });
+
+    it('should delete with exclusion list', async () => {
+        const numberDeleted = await DatabaseConnector.delete('users', {
+            hardDelete: false,
+            filters: [],
+            in: {
+                not: true,
+                column: 'id',
+                value: [1, 3, 5]
+            }
+        });
+
+        expect(numberDeleted).toBe(2);
+    });
+
+    it('should delete nothing with complex filter', async () => {
+        const numberDeleted = await DatabaseConnector.delete('users', {
+            hardDelete: false,
+            filters: [{
+                column: 'id',
+                value: 1
+            }, {
+                column: 'username',
+                value: `User 1`
+            }]
+        });
+
+        expect(numberDeleted).toBe(0);
+    });
 });

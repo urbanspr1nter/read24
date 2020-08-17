@@ -108,3 +108,12 @@ alter table users add `dateDeleted` bigint not null default 0;
 
 alter table books ADD fulltext (title);
 alter table books ADD fulltext (author);
+
+create table teacher_classroom (
+	`id` bigint primary key auto_increment,
+    `dateCreated` bigint null,
+    `dateUpdated` bigint null,
+    `dateDeleted` bigint not null default 0,
+    `teacher_id` bigint,
+    `classroom_id` bigint
+);
