@@ -1,8 +1,7 @@
 import { IRouter } from "express";
 import { Book } from "../models/book";
 import { Question } from "../models/question";
-
-const DEFAULT_LIMIT = 2;
+import { DEFAULT_PAGE_LIMIT } from "../db/types";
 
 export function mountBook(app: IRouter) {
     app.all([
@@ -18,7 +17,7 @@ export function mountBook(app: IRouter) {
             
             res.locals.page = page;
     
-            const offset = (page - 1) * DEFAULT_LIMIT;
+            const offset = (page - 1) * DEFAULT_PAGE_LIMIT;
             res.locals.offset = offset;
         } else {
             res.locals.page = 1;
@@ -32,8 +31,8 @@ export function mountBook(app: IRouter) {
         const page = res.locals.page;
         const offset = res.locals.offset;
         
-        const pages = Math.ceil((await Book.numberOfPages()) / DEFAULT_LIMIT);
-        const results = await Book.listAllBooks(offset, DEFAULT_LIMIT);
+        const pages = Math.ceil((await Book.numberOfPages()) / DEFAULT_PAGE_LIMIT);
+        const results = await Book.listAllBooks(offset, DEFAULT_PAGE_LIMIT);
 
         if (results.length === 0)
             return res.status(200).json({
@@ -69,7 +68,7 @@ export function mountBook(app: IRouter) {
         const offset = res.locals.offset;
         const bookTitle = req.params.bookTitle.trim().toLowerCase();
 
-        const results = await Book.listAllBooksByRelevantTitles(offset, DEFAULT_LIMIT, bookTitle);
+        const results = await Book.listAllBooksByRelevantTitles(offset, DEFAULT_PAGE_LIMIT, bookTitle);
 
         if (results.length === 0)
             return res.status(200).json({
@@ -80,7 +79,7 @@ export function mountBook(app: IRouter) {
                 }
             });
 
-        const pages = Math.ceil((await Book.numberOfPagesByRelevantTitle(bookTitle)) / DEFAULT_LIMIT);
+        const pages = Math.ceil((await Book.numberOfPagesByRelevantTitle(bookTitle)) / DEFAULT_PAGE_LIMIT);
         const lastBookTitle = await Book.lastBookTitleByRelevantTitle(bookTitle);
         const hasMore = !!!results.find(r => r.title === lastBookTitle);
 
@@ -107,7 +106,7 @@ export function mountBook(app: IRouter) {
         const offset = res.locals.offset;
         const authorName = req.params.authorName.trim().toLowerCase();
 
-        const results = await Book.listAllBooksByRelevantAuthor(offset, DEFAULT_LIMIT, authorName);
+        const results = await Book.listAllBooksByRelevantAuthor(offset, DEFAULT_PAGE_LIMIT, authorName);
 
         if (results.length === 0)
         return res.status(200).json({
@@ -118,7 +117,7 @@ export function mountBook(app: IRouter) {
             }
         });
 
-        const pages = Math.ceil((await Book.numberOfPagesByRelevantAuthor(authorName)) / DEFAULT_LIMIT);
+        const pages = Math.ceil((await Book.numberOfPagesByRelevantAuthor(authorName)) / DEFAULT_PAGE_LIMIT);
         const lastBookTitle = await Book.lastBookTitleByRelevantAuthor(authorName);
         const hasMore = !!!results.find(r => r.title === lastBookTitle);
 

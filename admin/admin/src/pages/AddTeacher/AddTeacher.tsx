@@ -17,7 +17,7 @@ export default function AddTeacher() {
 
     useEffect(() => {
         const setupAvailableUsers = async () => {
-            const users = await (await fetch(`${API_HOST}/admin/user/available`)).json();
+            const users = await (await fetch(`${API_HOST}/user/available`)).json();
 
             console.log(users);
             if (users.length === 0)
@@ -66,7 +66,7 @@ export default function AddTeacher() {
     }
 
     async function submitForm() {
-        const response = await (await fetch(`${API_HOST}/admin/teacher`, {
+        const response = await (await fetch(`${API_HOST}/teacher`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'

@@ -6,8 +6,10 @@ import {mountBook} from './routes/book';
 import { mountQuiz } from './routes/quiz';
 import { mountStudent } from './routes/student';
 import { mountLogin } from './routes/login';
-import { mountAdmin } from './routes/admin';
 import * as cors from 'cors';
+import { mountClassroom } from './routes/classroom';
+import { mountTeacher } from './routes/teacher';
+import { mountUser } from './routes/user';
 
 const app = express();
 
@@ -19,10 +21,12 @@ app.get('/ping', (req, res) => {
 });
 
 mountLogin(app);
-mountAdmin(app);
 mountBook(app);
 mountQuiz(app);
 mountStudent(app);
+mountClassroom(app);
+mountTeacher(app);
+mountUser(app);
 
 app.get('/debug/db', (req, res) => {
     if (process.env.DATA_SOURCE === 'mysql')

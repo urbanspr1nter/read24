@@ -10,7 +10,7 @@ export default function ListClassrooms() {
 
     useEffect(() => {
         const getData = async () => {
-            const data = await (await fetch(`${API_HOST}/admin/classroom/all/page/${page}`)).json();
+            const data = await (await fetch(`${API_HOST}/classroom/list/page/${page}`)).json();
 
             setData(data.classrooms);
             setTotalPages(data._meta.pages);

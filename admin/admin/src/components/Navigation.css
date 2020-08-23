@@ -1,3 +1,13 @@
 .navbar {
     background-color: #e3f2fd;
 }
+
+.dropdown > button,
+.dropdown > button:hover
+ {
+    margin-right: 8px;
+    background-color: transparent;
+    box-shadow: none;
+    color: rgba(0,0,0,.5);
+    border: 0;
+}

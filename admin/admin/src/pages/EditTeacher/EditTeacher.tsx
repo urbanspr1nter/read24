@@ -27,7 +27,7 @@ export default function EditTeacher(props: EditTeacherProps) {
     useEffect(() => {
         // get the teacher
         const getTeacher = async () => {
-            const teacher = await (await fetch(`${API_HOST}/admin/teacher/${id}`)).json();
+            const teacher = await (await fetch(`${API_HOST}/teacher/${id}`)).json();
 
             setFirstName(teacher.firstName);
             setMiddleName(teacher.middleName);
@@ -60,7 +60,7 @@ export default function EditTeacher(props: EditTeacherProps) {
     }
 
     async function submitForm() {
-        const response = await (await fetch(`${API_HOST}/admin/teacher`, {
+        const response = await (await fetch(`${API_HOST}/teacher`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json'

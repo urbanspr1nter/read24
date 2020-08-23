@@ -25,7 +25,7 @@ export default function AddUser() {
     }
 
     async function submitForm() {
-        const response = await (await fetch(`${API_HOST}/admin/user`, {
+        const response = await (await fetch(`${API_HOST}/user`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'

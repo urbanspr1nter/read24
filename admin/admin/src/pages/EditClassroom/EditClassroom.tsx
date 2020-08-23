@@ -28,8 +28,8 @@ export default function EditClassroom(props: EditClassroomProps) {
             return;
 
         const fetchedClassroom = async () => {
-            const teachers = await (await fetch(`${API_HOST}/admin/teacher/list/all`)).json();
-            const data = await (await fetch(`${API_HOST}/admin/classroom/${id}`)).json();
+            const teachers = await (await fetch(`${API_HOST}/teacher/list/all`)).json();
+            const data = await (await fetch(`${API_HOST}/classroom/${id}`)).json();
             
             setName(data.name);
             setSlug(data.slug);
@@ -65,7 +65,7 @@ export default function EditClassroom(props: EditClassroomProps) {
     }
 
     async function submitForm() {
-        const response = await (await fetch(`${API_HOST}/admin/classroom`, {
+        const response = await (await fetch(`${API_HOST}/classroom`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json'

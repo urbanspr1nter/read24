@@ -16,7 +16,7 @@ export default function AddClassroom() {
 
     useEffect(() => {
         const getData = async () => {
-            const data = await (await fetch(`${API_HOST}/admin/teacher/list/all`)).json();
+            const data = await (await fetch(`${API_HOST}/teacher/list/all`)).json();
 
             if (data.teachers.length === 0)
                 return;
@@ -47,7 +47,7 @@ export default function AddClassroom() {
     }
 
     async function submitForm() {
-        const response = await (await fetch(`${API_HOST}/admin/classroom`, {
+        const response = await (await fetch(`${API_HOST}/classroom`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'

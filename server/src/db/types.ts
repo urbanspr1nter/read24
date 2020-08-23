@@ -27,3 +27,5 @@ export type DataRow = DataType &
     StudentAnswerType & 
     UserType & 
     TeacherClassroomType;
+
+export const DEFAULT_PAGE_LIMIT = 2;

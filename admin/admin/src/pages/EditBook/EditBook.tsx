@@ -284,7 +284,7 @@ export default function EditBook(props: EditBookProps) {
 
         setBannerVisible(true);
 
-        const jsonResponse = await fetch(`${API_HOST}/admin/quiz/import`, {
+        const jsonResponse = await fetch(`${API_HOST}/quiz/import`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json'
@@ -297,7 +297,7 @@ export default function EditBook(props: EditBookProps) {
 
     useEffect(() => {
         const fetchedBook = async () => {
-            const data = await (await fetch(`${API_HOST}/admin/quiz/book/${bookId}`)).json();
+            const data = await (await fetch(`${API_HOST}/quiz/book/${bookId}`)).json();
             const book = data.book;
 
             setBook({
